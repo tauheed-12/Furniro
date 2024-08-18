@@ -6,11 +6,17 @@ const OrdersPage = () => {
   const { userData } = useAuth();
   const [ordersData, setOrdersData] = useState([]);
   const [error, setError] = useState(null);
-
+  const token = localStorage.getItem('token');
   useEffect(() => {
     const fetchUsersOrder = async () => {
       try {
-        const response = await axios.post('http://localhost:8080/user/findOrders', { userId: userData._id });
+        const response = await axios.post('http://localhost:8080/user/findOrders', { userId: userData._id },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
         // setOrdersData(response.data);
         setOrdersData(response.data.orders);
       } catch (error) {

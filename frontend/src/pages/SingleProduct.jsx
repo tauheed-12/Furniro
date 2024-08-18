@@ -21,8 +21,19 @@ const SingleProduct = () => {
     const userId = userData?._id;
 
     const handleAddCart = async () => {
+        const token = localStorage.getItem('token');
         try {
-            const response = await axios.post('http://localhost:8080/product/addCart', { productId, productName: selectedProduct.productName, userId, quantity, color: selectedColor, size: selectedSize, price: selectedProduct.price, productImgUrl: selectedProduct.imagesUrl[0] });
+            const response = await axios.post('http://localhost:8080/product/addCart',
+                {
+                    productId, productName: selectedProduct.productName,
+                    userId, quantity, color: selectedColor, size: selectedSize,
+                    price: selectedProduct.price, productImgUrl: selectedProduct.imagesUrl[0]
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
             alert(response.data.message);
         } catch (error) {
             console.log(error);

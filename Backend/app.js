@@ -28,7 +28,8 @@ db.once('open', function () {
 })
 
 app.use('/user', userRouter);
-app.use('/product', shopRouter)
+app.use('/product', shopRouter);
+
 
 app.listen(8080, () => {
     console.log("Listening on port 8080");

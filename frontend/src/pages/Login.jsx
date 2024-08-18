@@ -33,7 +33,8 @@ const Login = () => {
 
         try {
             const response = await axios.post('http://localhost:8080/user/login', loginInfo);
-            login(response.data);
+            login(response.data.existingUser);
+            localStorage.setItem('token', JSON.stringify(response.data.token));
             setSuccess("Login successful!");
             navigate('/')
         } catch (error) {

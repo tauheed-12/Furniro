@@ -7,16 +7,17 @@ const { getProducts,
     checkoutProduct,
     editProduct,
     removeCart } = require('../controllers/productController.js');
+const authenticateToken = require('../middlewares/Authroizations.js');
 
 const router = express.Router();
 
 router.post('/getproduct', getProducts);
 router.post('/singleproduct', getSpecificProduct)
-router.post('/add', addProducts);
-router.post('/addCart', addToCart);
-router.post('/cartProduct', getCartProduct);
-router.post('/checkout', checkoutProduct);
-router.post('/editProduct', editProduct);
-router.post('/removeCart', removeCart)
+router.post('/add', authenticateToken, addProducts);
+router.post('/addCart', authenticateToken, addToCart);
+router.post('/cartProduct', authenticateToken, getCartProduct);
+router.post('/checkout', authenticateToken, checkoutProduct);
+router.post('/editProduct', authenticateToken, editProduct);
+router.post('/removeCart', authenticateToken, removeCart)
 
 module.exports = router;

@@ -65,6 +65,7 @@ const Checkout = () => {
         const productsDetails = userData.cart;
         console.log(productsDetails);
         const userId = userData._id;
+        const token = localStorage.getItem('token');
         console.log(billingDetails, productsDetails, userId, paymentMethod);
         try {
             if (totalCheckoutValue == 0) {
@@ -73,6 +74,10 @@ const Checkout = () => {
                     productsDetails,
                     userId,
                     paymentMethod
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
                 console.log(response.data);
                 navigate('/success');

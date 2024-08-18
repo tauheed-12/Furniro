@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const { User, Order } = require('../schemas/Schema');
 const sendMail = require('../config/nodemailer');
+const { json } = require('body-parser');
+const jwt = require('jsonwebtoken')
 
 exports.register = async (req, res) => {
     try {
@@ -49,7 +51,10 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Incorrect Password!" });
         }
 
-        return res.status(200).json(existingUser);
+        const token = jwt.sign({ email }, "My_secret_key", { expiresIn: "30m" });
+        console.log(token);
+        return res.status(200).json({ existingUser, token });
+
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ message: "Internal Server Error" });

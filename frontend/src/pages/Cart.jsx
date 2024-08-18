@@ -61,8 +61,13 @@ const Cart = () => {
     const removeProduct = useCallback(async (productId) => {
         setLoading(true);
         setError(null);
+        const token = localStorage.getItem('token');
         try {
-            const response = await axios.post('http://localhost:8080/product/removeCart', { userId: userData._id, productId });
+            const response = await axios.post('http://localhost:8080/product/removeCart', { userId: userData._id, productId }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             setTotalAmount(prev => prev - response.data.price);
             setUserData(response.data.userData)
             setCheckOutAmount(totalAmount);
