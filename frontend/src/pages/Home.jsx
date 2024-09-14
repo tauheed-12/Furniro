@@ -3,17 +3,10 @@ import range1 from '../assets/range1.png';
 import range2 from '../assets/rang2.png';
 import range3 from '../assets/range3.png';
 import productData from '../data/products';
-import { VscCircle, VscArrowCircleRight } from "react-icons/vsc";
-import ProductCard from '../components/ProductCard';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-
-const BrowseCard = ({ imgName, alt, title }) => (
-    <div className='flex flex-col justify-center items-center gap-5'>
-        <img src={imgName} alt={alt} className='rounded-lg' />
-        <span className='text-xl font-semibold'>{title}</span>
-    </div>
-);
+import BrowseCard from '../components/BrowseCard';
+import ProductsHome from '../components/ProductsHome';
+import ExploreMore from '../components/ExploreMore';
 
 const Home = () => {
     const [numbOfDisplayedProduct, setNumberOfDisplayedProduct] = useState(8);
@@ -69,59 +62,17 @@ const Home = () => {
                 <div className='flex flex-col justify-center items-center py-4'>
                     <h2 className='text-black text-3xl font-bold'>Our Products</h2>
                 </div>
-                <div className='flex flex-col justify-center gap-6 items-center flex-wrap px-4 md:px-8'>
-                    <div className='flex flex-row justify-center gap-3 items-center flex-wrap'>
-                        {products.slice(0, numbOfDisplayedProduct).map((product, id) => (
-                            <ProductCard
-                                productId={product._id}
-                                imgName={product.imagesUrl[0]}
-                                productName={product.productName}
-                                description={product.description}
-                                price={product.price}
-                                percentageOff={product.discount}
-                                key={id}
-                            />
-                        ))}
+                <ProductsHome products={products} numbOfDisplayedProduct={numbOfDisplayedProduct}
+                    isHideButton={isHideButton} setNumberOfProduct={setNumberOfProduct} />
+                <ExploreMore imgIndex={imgIndex} imgs={imgs} setImgIndex={setImgIndex} />
+                <div className='flex flex-col justify-center items-center my-6 py-4 gap-8'>
+                    <div className='flex flex-col-reverse justify-center items-center'>
+                        <h2 className='text-black text-3xl font-bold'>#FuniroFurniture</h2>
+                        <p className='text-text-primary'>Share your setup with</p>
                     </div>
-                    {!isHideButton && (
-                        <button
-                            className='bg-white text-text-secondary px-5 py-2 opacity-100 border-2 border-yellow-500 hover:bg-text-secondary transition-all duration-500 ease-in-out hover:text-white'
-                            onClick={setNumberOfProduct}
-                        >
-                            Load More
-                        </button>
-                    )}
-                </div>
-            </div>
-            <div className='flex flex-col lg:flex-row justify-between items-center w-full bg-tertiary py-8 overflow-x-hidden'>
-                <div className='flex flex-col justify-start items-start gap-4 px-8'>
-                    <h2 className='text-4xl font-bold'>50+ Beautiful rooms inspiration</h2>
-                    <p className='text-sm text-text-primary w-[60%]'>Our designer already made a lot of beautiful prototipe of rooms that inspire you</p>
-                    <button className='text-lg bg-primary text-white py-1 px-6 mt-4'>Explore More</button>
-                </div>
-                <div className='flex flex-row justify-center items-start gap-8 relative px-6'>
-                    <img src={imgs[imgIndex % imgs.length]} alt='slide1' className='mt-5 lg:mt-0' />
-                    <div className='hidden md:flex flex-col gap-8 '>
-                        <div className='flex-[2] flex flex-row items-start justify-start gap-6'>
-                            <img src={imgs[(imgIndex + 1) % imgs.length]} alt='slide3' className='' />
-                            <img src={imgs[(imgIndex + 2) % imgs.length]} alt='slide2' className='' />
-                        </div>
-                        <div className='flex-1 flex flex-row justify-start items-center gap-6'>
-                            <VscCircle />
-                            <VscCircle />
-                            <VscCircle />
-                        </div>
-                    </div>
-                    <VscArrowCircleRight className='absolute hidden md:flex top-1/4 right-16 text-4xl text-text-secondary rounded-full bg-tertiary' onClick={() => setImgIndex(imgIndex + 1)} />
-                </div>
-            </div>
-            <div className='flex flex-col justify-center items-center my-6 py-4 gap-8'>
-                <div className='flex flex-col-reverse justify-center items-center'>
-                    <h2 className='text-black text-3xl font-bold'>#FuniroFurniture</h2>
-                    <p className='text-text-primary'>Share your setup with</p>
-                </div>
-                <div className='flex flex-row gap-6 flex-wrap'>
+                    <div className='flex flex-row gap-6 flex-wrap'>
 
+                    </div>
                 </div>
             </div>
         </div>

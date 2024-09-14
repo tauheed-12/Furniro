@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import AddProduct from './pages/AddProduct';
 import SuccessPage from './pages/SuccessPage';
 import OrdersPage from './pages/OrdersPage';
+import VerifyMail from './pages/VerifyMail.jsx'
 
 const router = createBrowserRouter([{
     path: '/',
@@ -32,12 +33,14 @@ const router = createBrowserRouter([{
             ]
         },
         {
-            path: '/signin', element: <Login />
+            path: '/signIn', element: <Login />
         },
         {
             path: '/signup', element: <Register />
         }, {
             path: '/add', element: <AddProduct />
+        }, {
+            path: '/forgetPassword/:token', element: <VerifyMail />
         }
     ]
 }])

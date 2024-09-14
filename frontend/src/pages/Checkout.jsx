@@ -5,13 +5,15 @@ import { useCheckout } from '../Context/CheckoutContext';
 import { useAuth } from '../Context/AuthContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import CheckoutTotal from '../components/CheckoutTotal';
+import CheckoutForm from '../components/CheckoutForm';
 
 const Checkout = () => {
     const navigate = useNavigate();
     const inputCss = 'border-solid border-[1px] border-black text-lg px-5 py-2 rounded-lg w-full';
     const labelCss = 'text-lg font-semibold mb-2';
     const inputDivCss = 'flex flex-col justify-start items-start mb-4';
-    const { userData } = useAuth();
+    const { userId } = useAuth();
     const [billingDetails, setBillingDetails] = useState({
         firstName: "",
         lastName: "",
@@ -26,7 +28,7 @@ const Checkout = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { totalCheckoutValue, productIds } = useCheckout();
+    const { totalCheckoutValue } = useCheckout();
     const [paymentMethod, setPaymentMethod] = useState("");
 
     const handleChange = (event) => {
@@ -36,6 +38,14 @@ const Checkout = () => {
             [name]: value
         });
     };
+    const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
+    if (!tokenCookie) {
+        setError("Authentication token not found. Please log in.");
+        setLoading(false);
+        return;
+    }
+
+    const token = tokenCookie.split('=')[1];
 
     const handlePaymentMethodChange = (event) => {
         setPaymentMethod(event.target.value);
@@ -62,16 +72,11 @@ const Checkout = () => {
         }
         setLoading(true);
         setError(null);
-        const productsDetails = userData.cart;
-        console.log(productsDetails);
-        const userId = userData._id;
-        const token = localStorage.getItem('token');
-        console.log(billingDetails, productsDetails, userId, paymentMethod);
+        console.log(billingDetails, userId, paymentMethod);
         try {
-            if (totalCheckoutValue == 0) {
+            if (totalCheckoutValue !== 0) {
                 const response = await axios.post('http://localhost:8080/product/checkout', {
                     billingDetails,
-                    productsDetails,
                     userId,
                     paymentMethod
                 }, {
@@ -97,163 +102,12 @@ const Checkout = () => {
             <Hero title={'Checkout'} />
             <h2 className='text-3xl font-bold text-center mt-12'>Billing Details</h2>
             <div className='flex flex-col md:flex-row justify-between px-10 py-10 gap-10'>
-                <form className='flex-1 flex flex-col gap-5' onSubmit={handleFormSubmit}>
-                    <div className='flex flex-row justify-between items-center gap-5'>
-                        <div className={inputDivCss}>
-                            <label className={labelCss}>First Name</label>
-                            <input
-                                type='text'
-                                value={billingDetails.firstName}
-                                onChange={handleChange}
-                                name='firstName'
-                                className={inputCss}
-                                required
-                            />
-                        </div>
-                        <div className={inputDivCss}>
-                            <label className={labelCss}>Last Name</label>
-                            <input
-                                name='lastName'
-                                value={billingDetails.lastName}
-                                type='text'
-                                onChange={handleChange}
-                                className={inputCss}
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>Company Name</label>
-                        <input
-                            type='text'
-                            value={billingDetails.companyName}
-                            name='companyName'
-                            onChange={handleChange}
-                            className={inputCss}
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>Country</label>
-                        <input
-                            type='text'
-                            value={billingDetails.country}
-                            name='country'
-                            onChange={handleChange}
-                            className={inputCss}
-                            required
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>Street Address</label>
-                        <input
-                            type='text'
-                            value={billingDetails.streetAddress}
-                            name='streetAddress'
-                            onChange={handleChange}
-                            className={inputCss}
-                            required
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>City</label>
-                        <input
-                            type='text'
-                            value={billingDetails.city}
-                            name='city'
-                            onChange={handleChange}
-                            className={inputCss}
-                            required
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>Province</label>
-                        <input
-                            type='text'
-                            name='province'
-                            onChange={handleChange}
-                            value={billingDetails.province}
-                            className={inputCss}
-                            required
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>ZIP code</label>
-                        <input
-                            type='text'
-                            value={billingDetails.zipCode}
-                            name='zipCode'
-                            onChange={handleChange}
-                            className={inputCss}
-                            required
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>Email Address</label>
-                        <input
-                            type='email'
-                            value={billingDetails.emailAddress}
-                            name='emailAddress'
-                            onChange={handleChange}
-                            className={inputCss}
-                            required
-                        />
-                    </div>
-                    <div className={inputDivCss}>
-                        <label className={labelCss}>Additional Information</label>
-                        <input
-                            type='text'
-                            value={billingDetails.additionalInfo}
-                            name='additionalInfo'
-                            onChange={handleChange}
-                            className={inputCss}
-                        />
-                    </div>
-                    <div className='mt-4'>
-                        <div className='flex items-center'>
-                            <input
-                                type='radio'
-                                name='paymentMethod'
-                                value='bankTransfer'
-                                onChange={handlePaymentMethodChange}
-                                required
-                            />
-                            <p className='ml-2 text-lg font-semibold'>Direct Bank Transfer</p>
-                        </div>
-                        <div className='flex items-center mt-4'>
-                            <input
-                                type='radio'
-                                name='paymentMethod'
-                                value='cashOnDelivery'
-                                onChange={handlePaymentMethodChange}
-                                required
-                            />
-                            <p className='ml-2 text-lg font-semibold'>Cash On Delivery</p>
-                        </div>
-                    </div>
-                    {error && <div className='text-red-500'>{error}</div>}
-                    <button
-                        type='submit'
-                        disabled={loading}
-                        className='self-center px-7 text-lg py-2 border-2 border-black rounded-2xl mt-8 hover:bg-primary hover:text-white'
-                    >
-                        {loading ? 'Processing...' : 'Place Order'}
-                    </button>
-                </form>
-                <div className='flex-1 ml-10'>
-                    <div className='flex flex-col gap-4 mt-4'>
-                        <div className='flex justify-between'>
-                            <span className='font-semibold'>Subtotal</span>
-                            <span className='text-text-primary font-semibold'>{totalCheckoutValue}</span>
-                        </div>
-                        <div className='flex justify-between'>
-                            <span className='font-semibold'>Total</span>
-                            <span className='text-text-secondary'>{totalCheckoutValue}</span>
-                        </div>
-                    </div>
-                    <div className='mt-4 text-text-primary text-lg'>
-                        Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy.
-                    </div>
-                </div>
+                <CheckoutForm handleChange={handleChange} handleFormSubmit={handleFormSubmit}
+                    error={error} inputCss={inputCss} inputDivCss={inputDivCss} labelCss={labelCss}
+                    billingDetails={billingDetails} handlePaymentMethodChange={handlePaymentMethodChange}
+                    loading={loading}
+                />
+                <CheckoutTotal totalCheckoutValue={totalCheckoutValue} />
             </div>
             <Features />
         </div>

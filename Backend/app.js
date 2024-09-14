@@ -3,12 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const userRouter = require('./router/userRouter');
 const shopRouter = require('./router/shopRouter');
-const multer = require('multer')
-const { Resend } = require('resend');
-const sendMail = require('./config/nodemailer')
+const authRouter = require('./router/authRouter');
 
 const app = express();
-const resend = new Resend('re_WdqjcsWu_KR77TnJJgwmXMPJrPkpqndd9');
+
 app.use(cors());
 app.use(express.json());
 
@@ -29,6 +27,8 @@ db.once('open', function () {
 
 app.use('/user', userRouter);
 app.use('/product', shopRouter);
+app.use('/auth', authRouter);
+
 
 
 app.listen(8080, () => {

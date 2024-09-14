@@ -8,8 +8,16 @@ import axios from 'axios';
 import { useAuth } from '../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+
+const setCookie = (name, value, minutes) => {
+    const date = new Date();
+    date.setTime(date.getTime() + (minutes * 60 * 1000)); 
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value}; ${expires}; path=/`;
+}
+
 const Login = () => {
-    const { login } = useAuth();
+    const { setUserId, setIsAdmin } = useAuth();
     const navigate = useNavigate();
     const [loginInfo, setLoginInfo] = useState({
         email: "",
@@ -32,12 +40,23 @@ const Login = () => {
         setSuccess("");
 
         try {
-            const response = await axios.post('http://localhost:8080/user/login', loginInfo);
-            login(response.data.existingUser);
-            localStorage.setItem('token', JSON.stringify(response.data.token));
+            const response = await axios.post('http://localhost:8080/auth/login', loginInfo);
+            console.log(response);
+            localStorage.setItem('userId',JSON.stringify(response.data.userId))
+            setCookie('userId', response.data.userId, 40);
+            setCookie('isAdmin', response.data.isAdmin, 40);
+            setCookie('token', response.data.token);
+
+            const userId = document.cookie.split(';').find(cookie => cookie.trim().startsWith('userId=')).split('=')[1];
+            const isAdmin = document.cookie.split(';').find(cookie => cookie.trim().startsWith('isAdmin=')).split('=')[1];
+
+            setUserId(userId);
+            setIsAdmin(isAdmin);
+
             setSuccess("Login successful!");
-            navigate('/')
+            navigate('/');
         } catch (error) {
+            console.error("Login error:", error);
             setError("Login failed. Please check your credentials and try again.");
         }
     };
@@ -85,13 +104,13 @@ const Login = () => {
                         </button>
                     </form>
                     <div className='text-center'>
-                        <Link to='/forgotpassword' className='text-blue-500 hover:underline'>Forgot Password?</Link>
+                        <Link to='/forget-password' className='text-blue-500 hover:underline'>Forgot Password?</Link>
                     </div>
                 </div>
             </div>
             <Features />
         </div>
     );
-}
+};
 
 export default Login;

@@ -4,82 +4,79 @@ import sofa from '../assets/Group 107.png';
 import Features from '../components/Features';
 import axios from 'axios';
 import { useAuth } from '../Context/AuthContext';
-import { Link } from 'react-router-dom';
 import { useCheckout } from '../Context/CheckoutContext';
-
-const CartCard = ({ productId, imgName, price, productName, removeProduct }) => {
-    return (
-        <div className='flex flex-row justify-center items-center gap-14 px-16 py-8'>
-            <table className='flex-[2]'>
-                <thead className='bg-main'>
-                    <tr>
-                        <th className='px-10 py-1'>Product</th>
-                        <th className='px-10 py-1'>Price</th>
-                        <th className='px-10 py-1'>Quantity</th>
-                        <th className='px-10 py-1'>Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr className='items-center'>
-                        <td className='flex flex-row gap-2 justify-center items-center'>
-                            <img src={imgName} className='w-16 h-16 mt-2' alt='sofa' />
-                            <span>{productName}</span>
-                        </td>
-                        <td className='text-center'>${price}</td>
-                        <td className='text-center'>1</td>
-                        <td className='text-center'>${price}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <button className='px-4 py-2 border-2 border-black rounded-2xl' onClick={() => removeProduct(productId)}>
-                Remove
-            </button>
-        </div>
-    );
-};
+import CartCard from '../components/CartCard';
+import CartTotal from '../components/CartTotal';
 
 const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [totalAmount, setTotalAmount] = useState(0);
-    const { userData, setCheckOutAmount, setUserData } = useAuth();
+    const { userId } = useAuth();
     const { setTotalCheckoutValue, setProductIds } = useCheckout();
+    const [cartData, setCartData] = useState([]);
 
     useEffect(() => {
-        let amount = 0;
-        userData.cart?.forEach(cartData => {
-            amount += cartData.price;
-        });
-        console.log(userData);
-        console.log(amount);
-        setTotalAmount(amount);
-        // setTotalAmount(prev => prev - response.data.price);
-        setTotalCheckoutValue(totalAmount);
-        setLoading(false);
-    }, [userData.cart]);
+        const fetchCartData = async () => {
+            setLoading(true);
+            setError(null);
+
+            const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
+            if (!tokenCookie) {
+                setError("Authentication token not found. Please log in.");
+                setLoading(false);
+                return;
+            }
+
+            const token = tokenCookie.split('=')[1];
+            console.log(token)
+
+            try {
+                const response = await axios.post('http://localhost:8080/product/cartProduct',
+                    { userId },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                console.log(response.data);
+                setCartData(response.data);
+
+                const total = response.data.reduce((acc, item) => acc + item.price, 0);
+                setTotalAmount(total);
+                setTotalCheckoutValue(total);
+
+            } catch (error) {
+                setError("Error during fetching cart info");
+                console.error("Error during fetching cart info", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (userId) {
+            fetchCartData();
+        }
+    }, [userId, setTotalCheckoutValue]);
 
     const removeProduct = useCallback(async (productId) => {
         setLoading(true);
         setError(null);
-        const token = localStorage.getItem('token');
         try {
-            const response = await axios.post('http://localhost:8080/product/removeCart', { userId: userData._id, productId }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setTotalAmount(prev => prev - response.data.price);
-            setUserData(response.data.userData)
-            setCheckOutAmount(totalAmount);
-            setTotalCheckoutValue(totalAmount);
-            setProductIds(response.data.map(product => product._id));
+            const response = await axios.post('http://localhost:8080/product/removeCart', { userId, productId });
+            const updatedCartData = response.data.cartData;
+
+            setCartData(updatedCartData);
+
+            const total = updatedCartData.reduce((acc, item) => acc + item.price, 0);
+            setTotalAmount(total);
+
+            setProductIds(updatedCartData.map(product => product._id));
         } catch (error) {
             setError("Error in removing product");
             console.error("Error in removing product", error);
         } finally {
             setLoading(false);
         }
-    }, [userData._id, setCheckOutAmount, setTotalCheckoutValue, setProductIds]);
+    }, [userId, setProductIds]);
 
     return (
         <div>
@@ -88,40 +85,21 @@ const Cart = () => {
                 <h1 className='w-full text-center my-10'>Loading...</h1>
             ) : error ? (
                 <h1 className='w-full text-center my-10 text-red-500'>{error}</h1>
-            ) : userData.cart.length === 0 ? (
+            ) : cartData.length === 0 ? (
                 <h1 className='w-full text-center my-10'>No product in cart</h1>
             ) : (
-                userData.cart.map((cartData, index) => (
+                cartData.map((item, id) => (
                     <CartCard
-                        key={index}
-                        productId={cartData.productId}
-                        imgName={cartData.productImgUrl || sofa}
-                        price={cartData.price}
-                        productName={cartData.productName}
+                        key={id}
+                        productId={item.productId}
+                        imgName={item.productImgUrl || sofa}
+                        price={item.price}
+                        productName={item.productName}
                         removeProduct={removeProduct}
                     />
                 ))
             )}
-            <div className='flex-1 p-8 m-4 bg-main flex flex-col justify-center items-center'>
-                <h1 className='text-3xl font-semibold'>Cart Total</h1>
-                <div className='mt-8 w-full'>
-                    <div className='flex flex-row justify-between items-center w-full'>
-                        <span className='text-lg font-semibold'>Subtotal</span>
-                        <span className='text-text-primary'>${totalAmount}</span>
-                    </div>
-                    <div className='flex flex-row justify-between items-center w-full'>
-                        <span className='text-lg font-semibold'>Total</span>
-                        <span className='text-text-secondary'>${totalAmount}</span>
-                    </div>
-                </div>
-                {totalAmount > 0 &&
-                    <Link to='/checkout'>
-                        <button className='px-4 py-2 border-2 border-black rounded-2xl mt-8'>
-                            Checkout
-                        </button>
-                    </Link>
-                }
-            </div>
+            <CartTotal totalAmount={totalAmount} />
             <Features />
         </div>
     );

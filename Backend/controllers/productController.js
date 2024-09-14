@@ -1,5 +1,7 @@
-const { Product, User, Order } = require('../schemas/Schema');
-const mongoose = require('mongoose');
+const Product = require('../models/productModel');
+const Order = require('../models/orderModel');
+const User = require('../models/userModel');
+const successMail = require('../helper/orderSuccessMail');
 
 exports.getProducts = async (req, res) => {
     try {
@@ -61,6 +63,7 @@ exports.addToCart = async (req, res) => {
 exports.getCartProduct = async (req, res) => {
     try {
         const { userId } = req.body;
+        console.log(userId);
         const userData = await User.findById(userId).populate('cart.productId');
         if (!userData) {
             return res.status(404).json({ message: "User not found" });
@@ -106,13 +109,15 @@ exports.editProduct = async (req, res) => {
 
 exports.checkoutProduct = async (req, res) => {
     try {
-        const { billingDetails, productsDetails, userId, paymentMethod } = req.body;
-
-        if (!Array.isArray(productsDetails) || productsDetails.length === 0) {
+        const { billingDetails,  userId, paymentMethod } = req.body;
+        console.log(billingDetails, userId)
+        const userDetails = await User.findById(userId);
+        const productDetails = userDetails.cart;
+        if (!Array.isArray(productDetails) || productDetails.length === 0) {
             return res.status(400).json({ message: "No products to checkout" });
         }
-
-        const newOrderItems = productsDetails.map(product => ({
+      
+        const newOrderItems = productDetails.map(product => ({
             productId: product.productId,
             productName: product.productName,
             color: product.color,
@@ -123,6 +128,7 @@ exports.checkoutProduct = async (req, res) => {
             status: 'Pending'
         }));
 
+        console.log(productDetails);
         const newOrder = new Order({
             userId,
             orderItems: newOrderItems,
@@ -138,12 +144,18 @@ exports.checkoutProduct = async (req, res) => {
             { new: true }
         );
 
-        const productIds = productsDetails.map(product => product.productId);
-        await User.findByIdAndUpdate(
+        const productIds = productDetails.map(product => product.productId);
+        const user = await User.findByIdAndUpdate(
             userId,
             { $pull: { cart: { productId: { $in: productIds } } } },
             { new: true }
         );
+        let productNames = "";
+        newOrderItems.map((single) => {
+            productNames = productNames + single.productName + " ";
+        });
+
+        successMail(user.email, productNames);
 
         return res.status(201).json({ message: "Order placed successfully" });
     } catch (error) {

@@ -5,15 +5,16 @@ import Footer from '../components/Footer';
 import ShoppingCart from '../components/ShoppingCart';
 
 const RootPage = () => {
-    const [cartModelOpen, setcartModelOpen] = useState(false);
+    const [cartModelOpen, setCartModelOpen] = useState(false);
+
     return (
         <div className={`relative ${cartModelOpen ? 'opacity-100' : ''}`}>
-            <Navbar setcartModelOpen={setcartModelOpen} />
-            {cartModelOpen && <ShoppingCart setcartModelOpen={setcartModelOpen} />}
+            <Navbar setCartModelOpen={setCartModelOpen} />
+            {cartModelOpen && <ShoppingCart setCartModelOpen={setCartModelOpen} />}
             <Outlet />
             <Footer />
         </div>
-    )
+    );
 }
 
 export default RootPage;
