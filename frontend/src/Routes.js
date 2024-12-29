@@ -13,7 +13,12 @@ import Register from './pages/Register';
 import AddProduct from './pages/AddProduct';
 import SuccessPage from './pages/SuccessPage';
 import OrdersPage from './pages/OrdersPage';
-import VerifyMail from './pages/VerifyMail.jsx'
+import VerifyMail from './pages/VerifyMail.jsx';
+import PaymentForm from './pages/PaymentForm.jsx';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe('pk_test_51PytxG2MwbGLW2CMjN9jQukdRo5569zPL5LxzfHYBR9L4Ywy0ws27isxM3fe45JGS5yQTBrdAJ7f6HVg6Pfp7qxc000XDNJyo7');
 
 const router = createBrowserRouter([{
     path: '/',
@@ -37,12 +42,22 @@ const router = createBrowserRouter([{
         },
         {
             path: '/signup', element: <Register />
-        }, {
+        },
+        {
             path: '/add', element: <AddProduct />
-        }, {
+        },
+        {
             path: '/forgetPassword/:token', element: <VerifyMail />
+        },
+        {
+            path: '/stripe/checkout',
+            element: (
+                <Elements stripe={stripePromise}>
+                    <PaymentForm />
+                </Elements>
+            )
         }
     ]
-}])
+}]);
 
 export default router;

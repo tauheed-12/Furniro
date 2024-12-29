@@ -1,3 +1,4 @@
+require('dotenv').config()
 const nodemailer = require('nodemailer');
 
 const successMail = async (email, productName) => {
@@ -5,7 +6,7 @@ const successMail = async (email, productName) => {
         service: 'gmail',
         auth: {
             user: 'sheikhtauheed75@gmail.com',
-            pass: 'ledq golo ptkw asep'
+            pass: process.env.PASSWORD
         },
     });
 

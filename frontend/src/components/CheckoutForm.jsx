@@ -1,6 +1,6 @@
 const CheckoutForm = ({ handleFormSubmit, inputDivCss, labelCss, billingDetails, handleChange,
     inputCss, handlePaymentMethodChange, error, loading
-}) => {
+}) => (
     <form className='flex-1 flex flex-col gap-5' onSubmit={handleFormSubmit}>
         <div className='flex flex-row justify-between items-center gap-5'>
             <div className={inputDivCss}>
@@ -143,6 +143,6 @@ const CheckoutForm = ({ handleFormSubmit, inputDivCss, labelCss, billingDetails,
             {loading ? 'Processing...' : 'Place Order'}
         </button>
     </form>
-}
+)
 
 export default CheckoutForm;

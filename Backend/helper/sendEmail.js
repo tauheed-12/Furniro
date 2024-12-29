@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const uniqid = require('uniqid');
+require('dotenv').config();
 const User = require('../models/userModel');
 
 const sendEmail = async (mail, mailType, id) => {
@@ -8,7 +9,7 @@ const sendEmail = async (mail, mailType, id) => {
         service: 'gmail',
         auth: {
             user: 'sheikhtauheed75@gmail.com',
-            pass: process.env.PASS
+            pass: process.env.PASSWORD
         },
     });
 

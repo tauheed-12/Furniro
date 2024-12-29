@@ -1,4 +1,4 @@
-const CheckoutTotal = ({ totalCheckoutValue }) => {
+const CheckoutTotal = ({ totalCheckoutValue }) => (
     <div className='flex-1 ml-10'>
         <div className='flex flex-col gap-4 mt-4'>
             <div className='flex justify-between'>
@@ -14,6 +14,6 @@ const CheckoutTotal = ({ totalCheckoutValue }) => {
             Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy.
         </div>
     </div>
-}
+)
 
 export default CheckoutTotal

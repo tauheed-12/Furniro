@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CheckoutTotal from '../components/CheckoutTotal';
 import CheckoutForm from '../components/CheckoutForm';
+import { usePayment } from '../Context/PaymentContext';
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -14,22 +15,10 @@ const Checkout = () => {
     const labelCss = 'text-lg font-semibold mb-2';
     const inputDivCss = 'flex flex-col justify-start items-start mb-4';
     const { userId } = useAuth();
-    const [billingDetails, setBillingDetails] = useState({
-        firstName: "",
-        lastName: "",
-        companyName: "",
-        country: "",
-        streetAddress: "",
-        city: "",
-        province: "",
-        zipCode: "",
-        emailAddress: "",
-        additionalInfo: ""
-    });
+    const { billingDetails, setBillingDetails, payMethod, setPaymentMethod } = usePayment();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { totalCheckoutValue } = useCheckout();
-    const [paymentMethod, setPaymentMethod] = useState("");
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -58,7 +47,7 @@ const Checkout = () => {
                 return false;
             }
         }
-        if (!paymentMethod) {
+        if (!payMethod) {
             return false;
         }
         return true;
@@ -72,20 +61,24 @@ const Checkout = () => {
         }
         setLoading(true);
         setError(null);
-        console.log(billingDetails, userId, paymentMethod);
+        console.log(billingDetails, userId, payMethod);
         try {
             if (totalCheckoutValue !== 0) {
-                const response = await axios.post('http://localhost:8080/product/checkout', {
-                    billingDetails,
-                    userId,
-                    paymentMethod
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                console.log(response.data);
-                navigate('/success');
+                if (payMethod === "bankTransfer") {
+                    navigate('/stripe/checkout');
+                } else {
+                    const response = await axios.post('http://localhost:8080/product/checkout', {
+                        billingDetails,
+                        userId,
+                        payMethod
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    console.log(response.data);
+                    navigate('/success');
+                }
             } else {
                 setError("Nothing to checkout!!");
             }

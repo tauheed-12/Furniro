@@ -2,7 +2,7 @@ const inputCss = 'border-solid border-[1px] border-black text-lg px-5 py-2 round
 const labelCss = 'text-lg font-semibold mb-2';
 const inputDivCss = 'flex flex-col justify-start items-start w-full';
 
-const ContactForm = ()=>{
+const ContactForm = () => (
     <form className='flex-1 flex flex-col w-full px-6 md:pr-10 gap-6'>
         <div className={inputDivCss}>
             <label className={labelCss}>Your name</label>
@@ -24,6 +24,6 @@ const ContactForm = ()=>{
             Submit
         </button>
     </form>
-}
+)
 
 export default ContactForm;

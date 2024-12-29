@@ -6,10 +6,9 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Initialize state from cookies
         const cookieUserId = Cookies.get('userId');
         const cookieIsAdmin = Cookies.get('isAdmin') === 'true';
 
@@ -25,18 +24,18 @@ export const AuthProvider = ({ children }) => {
             setIsAdmin(cookieIsAdmin);
         }
 
-        setLoading(false); // Set loading to false after initialization
+        setLoading(false);
     }, []);
 
     const updateUserId = (id) => {
         setUserId(id);
-        Cookies.set('userId', id); // Store userId in cookies
+        Cookies.set('userId', id);
         console.log('Updated User ID:', id);
     };
 
     const updateIsAdmin = (adminStatus) => {
         setIsAdmin(adminStatus);
-        Cookies.set('isAdmin', adminStatus); // Store isAdmin in cookies
+        Cookies.set('isAdmin', adminStatus);
         console.log('Updated Admin Status:', adminStatus);
     };
 

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const CartTotal = ({ totalAmount }) => {
+const CartTotal = ({ totalAmount }) => (
     <div className='flex-1 p-8 m-4 bg-main flex flex-col justify-center items-center'>
         <h1 className='text-3xl font-semibold'>Cart Total</h1>
         <div className='mt-8 w-full'>
@@ -17,6 +17,6 @@ const CartTotal = ({ totalAmount }) => {
             </Link>
         }
     </div>
-}
+)
 
 export default CartTotal;

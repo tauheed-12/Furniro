@@ -1,6 +1,6 @@
 import { VscCircle, VscArrowCircleRight } from "react-icons/vsc";
 
-const ExploreMore = ({ imgs, imgIndex, setImgIndex }) => {
+const ExploreMore = ({ imgs, imgIndex, setImgIndex }) => (
     <div className='flex flex-col lg:flex-row justify-between items-center w-full bg-tertiary py-8 overflow-x-hidden'>
         <div className='flex flex-col justify-start items-start gap-4 px-8'>
             <h2 className='text-4xl font-bold'>50+ Beautiful rooms inspiration</h2>
@@ -25,6 +25,6 @@ const ExploreMore = ({ imgs, imgIndex, setImgIndex }) => {
              bg-tertiary' onClick={() => setImgIndex(imgIndex + 1)} />
         </div>
     </div>
-}
+)
 
 export default ExploreMore;

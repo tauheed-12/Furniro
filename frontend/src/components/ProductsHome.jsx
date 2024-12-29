@@ -1,7 +1,7 @@
 import ProductCard from './ProductCard';
 
 const ProductsHome = ({ products, numbOfDisplayedProduct, isHideButton, setNumberOfProduct }) => {
-    <div className='flex flex-col justify-center gap-6 items-center flex-wrap px-4 md:px-8'>
+    return (<div className='flex flex-col justify-center gap-6 items-center flex-wrap px-4 md:px-8'>
         <div className='flex flex-row justify-center gap-3 items-center flex-wrap'>
             {products.slice(0, numbOfDisplayedProduct).map((product, id) => (
                 <ProductCard
@@ -23,7 +23,7 @@ const ProductsHome = ({ products, numbOfDisplayedProduct, isHideButton, setNumbe
                 Load More
             </button>
         )}
-    </div>
+    </div>)
 }
 
 export default ProductsHome;

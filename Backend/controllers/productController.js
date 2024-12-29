@@ -2,6 +2,7 @@ const Product = require('../models/productModel');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
 const successMail = require('../helper/orderSuccessMail');
+const stripe = require('stripe')('sk_test_51PytxG2MwbGLW2CMwn1xnOkg8pvwjUmCUVGkKlJJYRdvhhv0haRdIwv486aKd27h6BJH4OtJmUBdczyNG2TIdS6900CC9ngWXp');;
 
 exports.getProducts = async (req, res) => {
     try {
@@ -13,17 +14,32 @@ exports.getProducts = async (req, res) => {
     }
 };
 
+
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+});
+
 exports.addProducts = async (req, res) => {
-    const productData = req.body;
+    let productData = req.body;
     try {
+        productData = {
+            ...productData,
+            imagesUrl: req.file.path
+        };
         const newProduct = new Product(productData);
         await newProduct.save();
+
         return res.status(201).json({ message: "Product added successfully" });
     } catch (error) {
         console.error('Error adding product:', error);
         return res.status(500).json({ message: "Unable to add product!" });
     }
 };
+
 
 exports.getSpecificProduct = async (req, res) => {
     try {
@@ -109,14 +125,14 @@ exports.editProduct = async (req, res) => {
 
 exports.checkoutProduct = async (req, res) => {
     try {
-        const { billingDetails,  userId, paymentMethod } = req.body;
+        const { billingDetails, userId, paymentMethod } = req.body;
         console.log(billingDetails, userId)
         const userDetails = await User.findById(userId);
         const productDetails = userDetails.cart;
         if (!Array.isArray(productDetails) || productDetails.length === 0) {
             return res.status(400).json({ message: "No products to checkout" });
         }
-      
+
         const newOrderItems = productDetails.map(product => ({
             productId: product.productId,
             productName: product.productName,
@@ -163,4 +179,22 @@ exports.checkoutProduct = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+exports.paymentWithStripe = async (req, res) => {
+    const { amount } = req.body;
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount * 100, // convert to cents
+            currency: "usd",
+        });
+        console.log(paymentIntent);
+        res.status(200).send({
+            clientSecret: paymentIntent.client_secret,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+
+}
 
