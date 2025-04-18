@@ -42,7 +42,7 @@ const SingleProduct = () => {
         if (!selectedProduct) return;
 
         try {
-            const response = await axios.post('http://localhost:8080/product/addCart',
+            const response = await axios.post(`${process.env.BACKEND_URI}/product/addCart`,
                 {
                     productId,
                     productName: selectedProduct.productName,

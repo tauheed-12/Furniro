@@ -32,7 +32,7 @@ const Cart = () => {
             console.log(token)
 
             try {
-                const response = await axios.post('http://localhost:8080/product/cartProduct',
+                const response = await axios.post(`${process.env.BACKEND_URI}/product/cartProduct`,
                     { userId },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );

@@ -14,7 +14,7 @@ const authenticateToken = require('../middlewares/Authroizations.js');
 
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../config/cloudinary'); // Ensure correct path
+const cloudinary = require('../config/cloudinary');
 
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
@@ -29,7 +29,7 @@ const router = express.Router();
 
 router.post('/getproduct', getProducts);
 router.post('/singleproduct', getSpecificProduct);
-router.post('/add', authenticateToken, upload.single('image'), addProducts);
+router.post('/add', upload.single('image'), addProducts);
 router.post('/addCart', authenticateToken, addToCart);
 router.post('/cartProduct', authenticateToken, getCartProduct);
 router.post('/checkout', authenticateToken, checkoutProduct);

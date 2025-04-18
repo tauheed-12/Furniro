@@ -9,7 +9,7 @@ const VerifyMail = () => {
     const handleVerify = async () => {
         console.log(token);
         try {
-            const response = await axios.post('http://localhost:8080/auth/verifyEmail', { token });
+            const response = await axios.post(`${process.env.BACKEND_URI}/auth/verifyEmail`, { token });
             console.log(response);
             if (response.data.success) {
                 navigate('/sigIn')

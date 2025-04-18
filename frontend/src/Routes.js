@@ -47,7 +47,7 @@ const router = createBrowserRouter([{
             path: '/add', element: <AddProduct />
         },
         {
-            path: '/forgetPassword/:token', element: <VerifyMail />
+            path: '/verifyemail/:token', element: <VerifyMail />
         },
         {
             path: '/stripe/checkout',

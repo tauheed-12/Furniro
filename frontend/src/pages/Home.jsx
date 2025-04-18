@@ -18,7 +18,7 @@ const Home = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.post('http://localhost:8080/product/getproduct', 16);
+                const response = await axios.post(`${process.env.BACKEND_URI}/product/getproduct`, 16);
                 console.log(response);
                 setProducts(response.data);
             } catch (error) {

@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const setCookie = (name, value, minutes) => {
     const date = new Date();
-    date.setTime(date.getTime() + (minutes * 60 * 1000)); 
+    date.setTime(date.getTime() + (minutes * 60 * 1000));
     const expires = `expires=${date.toUTCString()}`;
     document.cookie = `${name}=${value}; ${expires}; path=/`;
 }
@@ -40,9 +40,9 @@ const Login = () => {
         setSuccess("");
 
         try {
-            const response = await axios.post('http://localhost:8080/auth/login', loginInfo);
+            const response = await axios.post(`${process.env.BACKEND_URI}http://localhost:8080/auth/login`, loginInfo);
             console.log(response);
-            localStorage.setItem('userId',JSON.stringify(response.data.userId))
+            localStorage.setItem('userId', JSON.stringify(response.data.userId))
             setCookie('userId', response.data.userId, 40);
             setCookie('isAdmin', response.data.isAdmin, 40);
             setCookie('token', response.data.token);

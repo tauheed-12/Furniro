@@ -33,12 +33,12 @@ const sendEmail = async (mail, mailType, id) => {
         from: 'sheikhtauheed75@gmail.com',
         to: mail,
         subject: 'Verify Our Email',
-        text: `http://localhost:3000/forgotpassword/${token}`,
+        text: `http://localhost:3000/verifyemail/${token}`,
     } : mailOptions = {
         from: 'sheikhtauheed75@gmail.com',
         to: mail,
         subject: 'Forget password verification',
-        text: `http://localhost:3000/verifyemail/${token}`
+        text: `http://localhost:3000/forgotpassword/${token}`
     }
     mailOptions;
 

@@ -9,15 +9,15 @@ const OrdersPage = () => {
 
   useEffect(() => {
     const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
-            if (!tokenCookie) {
-                return;
-            }
+    if (!tokenCookie) {
+      return;
+    }
 
     const token = tokenCookie.split('=')[1];
     const fetchUsersOrder = async () => {
       try {
         const response = await axios.post(
-          'http://localhost:8080/user/findOrders',
+          `${process.env.BACKEND_URI}http://localhost:8080/user/findOrders`,
           { userId: userId },
           {
             headers: {

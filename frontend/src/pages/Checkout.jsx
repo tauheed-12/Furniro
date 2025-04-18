@@ -67,7 +67,7 @@ const Checkout = () => {
                 if (payMethod === "bankTransfer") {
                     navigate('/stripe/checkout');
                 } else {
-                    const response = await axios.post('http://localhost:8080/product/checkout', {
+                    const response = await axios.post(`${process.env.BACKEND_URI}/product/checkout`, {
                         billingDetails,
                         userId,
                         payMethod

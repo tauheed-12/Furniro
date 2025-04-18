@@ -43,8 +43,9 @@ const Register = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/auth/register', registerInfo);
+            const response = await axios.post(`${process.env.BACKEND_URI}/auth/register`, registerInfo);
             console.log(response);
+            setSuccess(response.data.message)
         } catch (error) {
             setError("Registration failed. Please try again.");
         }

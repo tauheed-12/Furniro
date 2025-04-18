@@ -13,7 +13,7 @@ const AddProduct = () => {
         color: [{ colorName: "", quantity: 9 }],
         sizes: [{ sizeName: "", quantity: 8 }],
         features: [""],
-        image: null // Initialize images as an empty array
+        image: null
     };
 
     const [productDetails, setProductDetails] = useState(demoProduct);
@@ -75,7 +75,7 @@ const AddProduct = () => {
     };
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0]; // Get the file from the input
+        const file = e.target.files[0];
         setProductDetails({
             ...productDetails,
             image: file
@@ -87,37 +87,30 @@ const AddProduct = () => {
         try {
             const formData = new FormData();
 
-            // Append product details to the form data
+
             formData.append("productName", productDetails.productName);
             formData.append("description", productDetails.description);
             formData.append("price", productDetails.price);
             formData.append("discount", productDetails.discount);
 
-            // Append color details
+
             productDetails.color.forEach((color, index) => {
                 formData.append(`color[${index}][colorName]`, color.colorName);
                 formData.append(`color[${index}][quantity]`, color.quantity);
             });
 
-            // Append size details
+
             productDetails.sizes.forEach((size, index) => {
                 formData.append(`sizes[${index}][sizeName]`, size.sizeName);
                 formData.append(`sizes[${index}][quantity]`, size.quantity);
             });
 
-            // Append features
             productDetails.features.forEach((feature, index) => {
                 formData.append(`features[${index}]`, feature);
             });
 
-            // Append image to form data
             if (productDetails.image) {
-                formData.append('image', productDetails.image); // Ensure this is a file object
-            }
-
-            // Log formData
-            for (let [key, value] of formData.entries()) {
-                console.log(key, value);
+                formData.append('image', productDetails.image);
             }
 
             const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
@@ -127,14 +120,13 @@ const AddProduct = () => {
 
             const token = tokenCookie.split('=')[1];
 
-            // Send the form data via POST request
-            const response = await axios.post('http://localhost:8080/product/add', formData, {
+            const response = await axios.post(`${process.env.BACKEND_URI}/product/add`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log(response.data);
+            alert(response.data.message);
         } catch (error) {
             console.error("Error submitting product:", error);
         }
