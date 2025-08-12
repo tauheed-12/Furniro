@@ -17,7 +17,7 @@ const OrdersPage = () => {
     const fetchUsersOrder = async () => {
       try {
         const response = await axios.post(
-          `${process.env.BACKEND_URI}http://localhost:8080/user/findOrders`,
+          `http://13.201.9.84:8080/user/findOrders`,
           { userId: userId },
           {
             headers: {

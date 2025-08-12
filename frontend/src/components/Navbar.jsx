@@ -3,23 +3,24 @@ import logo from '../assets/logo.png';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
 import { CiShoppingCart, CiHeart, CiSearch } from "react-icons/ci";
-import { useAuth } from '../Context/AuthContext';
 import { FiAlignJustify, FiX } from "react-icons/fi";
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../slices/authSlice';
+import { showNotification } from '../slices/notificationSlice';
 
 const Navbar = () => {
-    const navigate = useNavigate();
     const [isNavbarOpen, setNavbarOpen] = useState(false);
-    const {userId} = useAuth();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { user } = useSelector(state => {
+        console.log(state.auth, "navbar error sala")
+        return state.auth
+    });
 
-    const handleLogout = ()=>{
-        function deleteCookie(name) {
-            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        }
-    
-        deleteCookie('token');
-        deleteCookie('userId');
-        deleteCookie('isAdmin');  
-        navigate('/signIn')
+    const HandleLogout = () => {
+        dispatch(logout());
+        dispatch(showNotification({ type: 'success', message: 'Logged out successfully!' }));
+        navigate('/signIn');
     }
 
     return (
@@ -41,22 +42,22 @@ const Navbar = () => {
                 ))}
             </div>
             <div className='flex-1 hidden lg:flex justify-center items-center gap-6'>
-                {userId && <CgProfile className='cursor-pointer' />}
-                {userId && <CiHeart className='cursor-pointer' />}
+                {user.token && <CgProfile className='cursor-pointer' />}
+                {user.token && <CiHeart className='cursor-pointer' />}
                 <CiSearch className='cursor-pointer' />
-                {userId &&
+                {user.token &&
                     <NavLink to='/cart'>
                         <CiShoppingCart className='text-xl' />
                     </NavLink>}
 
-                {userId &&
+                {user.token &&
                     <NavLink
-                        to={`/${userId}/orders`}
+                        to={`/${user.userId}/orders`}
                         className={({ isActive }) => isActive ? 'text-text-secondary' : 'text-black'}>
                         Your Orders
                     </NavLink>}
 
-                {!userId ? (
+                {!user.token ? (
                     <>
                         <NavLink
                             to="/signIn"
@@ -72,7 +73,7 @@ const Navbar = () => {
                         </NavLink>
                     </>
                 ) : (
-                    <button onClick={handleLogout}>
+                    <button onClick={HandleLogout}>
                         Logout
                     </button>
                 )}
@@ -91,14 +92,14 @@ const Navbar = () => {
                                 {link}
                             </NavLink>
                         ))}
-                        {userId && <CgProfile className='cursor-pointer' />}
-                        {userId && <CiHeart className='cursor-pointer' />}
+                        {user.token && <CgProfile className='cursor-pointer' />}
+                        {user.token && <CiHeart className='cursor-pointer' />}
                         <CiSearch className='cursor-pointer' />
-                        {userId &&
+                        {user.token &&
                             <NavLink to='/cart'>
                                 <CiShoppingCart className='text-xl' />
                             </NavLink>}
-                        {!userId ? (
+                        {!user.token ? (
                             <>
                                 <NavLink
                                     to="/signIn"

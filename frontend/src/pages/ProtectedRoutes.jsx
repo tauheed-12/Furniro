@@ -1,17 +1,11 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../Context/AuthContext';
+import { useSelector } from 'react-redux';
 
 const ProtectedRoutes = () => {
-    const { userId, loading } = useAuth();
+    const { user } = useSelector(state => state.auth);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    console.log('ProtectedRoutes userId:', userId);
-
-    return userId ? <Outlet /> : <Navigate to='/signIn' />;
+    return user.userId ? <Outlet /> : <Navigate to='/signIn' />;
 };
 
 export default ProtectedRoutes;

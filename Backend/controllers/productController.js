@@ -80,6 +80,7 @@ exports.getCartProduct = async (req, res) => {
     try {
         const { userId } = req.body;
         console.log(userId);
+
         const userData = await User.findById(userId).populate('cart.productId');
         if (!userData) {
             return res.status(404).json({ message: "User not found" });

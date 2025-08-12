@@ -4,18 +4,21 @@ import Features from '../components/Features';
 import { FaRegUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { registerUser } from '../slices/registerSlice';
+import { useDispatch } from 'react-redux';
+import { showNotification } from '../slices/notificationSlice';
+import { useSelector } from 'react-redux';
 
 const Register = () => {
-
     const [registerInfo, setRegisterInfo] = useState({
         email: "",
         password: "",
         confirmPassword: ""
     });
-
+    const dispatch = useDispatch();
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const { status } = useSelector(state => state.register);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -25,29 +28,34 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setError("");
-        setSuccess("");
-
+    function verifyInputs() {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
         if (registerInfo.password !== registerInfo.confirmPassword) {
             setError("Passwords do not match");
-            return;
+            return false;
         }
-
         if (!passwordRegex.test(registerInfo.password)) {
             setError("Password must be at least 8 characters long and contain an uppercase letter, a lowercase letter, a number, and a special character.");
-            return;
+            return false;
         }
+        return true;
+    }
 
-        try {
-            const response = await axios.post(`${process.env.BACKEND_URI}/auth/register`, registerInfo);
-            console.log(response);
-            setSuccess(response.data.message)
-        } catch (error) {
-            setError("Registration failed. Please try again.");
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setError("");
+        setSuccess("");
+        if (verifyInputs()) {
+            try {
+                await dispatch(registerUser(registerInfo)).unwrap();
+                dispatch(showNotification({
+                    type: 'success',
+                    message: 'registration successful please verify email!'
+                }));
+            } catch (err) {
+                dispatch(showNotification({ type: 'error', message: `Registration failed: ${err}` }));
+            }
         }
     };
 
@@ -102,8 +110,11 @@ const Register = () => {
                         </div>
                         {error && <p className="text-red-500 text-center mt-4">{error}</p>}
                         {success && <p className="text-green-500 text-center mt-4">{success}</p>}
-                        <button type='submit' className='self-center px-6 py-2 text-lg mt-5 bg-black text-white rounded-2xl hover:bg-gray-800 transition duration-300'>
-                            Sign Up
+                        <button
+                            type='submit'
+                            disabled={status === 'loading'}
+                            className='self-center px-6 py-2 mt-5 bg-black text-white rounded-2xl hover:bg-gray-800 transition duration-300'>
+                            {status === 'loading' ? 'Signing Up...' : 'Sign Up'}
                         </button>
                     </form>
                     <div className='text-center'>

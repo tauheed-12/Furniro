@@ -9,25 +9,33 @@ exports.register = async (req, res) => {
 
         const existingUser = await User.findOne({ email });
 
-        if (existingUser && existingUser.isVerified) {
-            return res.status(409).json({ message: "User already exists and is verified" });
-        } else if (existingUser && !existingUser.isVerified) {
-            return res.status(401).json({ message: "User is not verified. Please verify" });
-        } else {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new User({
-                email,
-                password: hashedPassword,
-            });
-            await newUser.save();
-            sendEmail(email, 'VERIFY', newUser._id);
-            return res.status(201).json({ message: "User registered successfully. Please verify" });
+        if (existingUser) {
+            if (existingUser.isVerified) {
+                return res.status(409).json({ message: "User already exists and is verified" });
+            } else {
+                return res.status(409).json({ message: "User already exists but is not verified. Please verify." });
+            }
         }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new User({
+            email,
+            password: hashedPassword,
+        });
+
+        await newUser.save();
+
+        sendEmail(email, 'VERIFY', newUser._id);
+
+        return res.status(201).json({ message: "User registered successfully. Please verify your email." });
+
     } catch (error) {
         console.error('Error registering user:', error);
         return res.status(500).json({ message: "Unable to register user!" });
     }
 };
+
 
 exports.login = async (req, res) => {
     try {
@@ -55,11 +63,11 @@ exports.login = async (req, res) => {
         );
 
         const userId = existingUser._id
-        
-        const isAdmin =  existingUser.isAdmin;
-        
 
-        return res.status(200).json({ message: "Login successful!", userId, isAdmin, token});
+        const isAdmin = existingUser.isAdmin;
+
+
+        return res.status(200).json({ message: "Login successful!", userId, isAdmin, token });
 
     } catch (error) {
         console.error('Error during login:', error);
