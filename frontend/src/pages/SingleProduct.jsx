@@ -2,15 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { GoChevronRight } from "react-icons/go";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../Context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../slices/cartSlice';
 
 import ProductCard from '../components/ProductCard';
 import ProductImage from '../components/SingleProductPage/ProductImage';
 import ProductDetails from '../components/SingleProductPage/ProductDetails';
 import ProductTabs from '../components/SingleProductPage/ProductTabs';
+import Loader from '../components/Loader';
+import { showNotification } from '../slices/notificationSlice';
 
 
 const SingleProduct = () => {
+    const dispatch = useDispatch();
+    const { status } = useSelector((state) => state.cart);
     const [selectedButton, setSelectedButton] = useState(1);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
@@ -29,43 +34,24 @@ const SingleProduct = () => {
         };
         fetchProduct();
     }, [productId]);
-    const { userId } = useAuth();
+
     const handleAddCart = async () => {
-
-        const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
-        if (!tokenCookie) {
-            return;
-        }
-
-        const token = tokenCookie.split('=')[1];
-        console.log(token)
-        if (!selectedProduct) return;
-
         try {
-            const response = await axios.post(`${process.env.BACKEND_URI}/product/addCart`,
-                {
-                    productId,
-                    productName: selectedProduct.productName,
-                    userId: userId,
-                    quantity,
-                    color: selectedColor,
-                    size: selectedSize,
-                    price: selectedProduct.price,
-                    productImgUrl: selectedProduct.imagesUrl[0]
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-            alert(response.data.message);
+            dispatch(addToCart({ productName: selectedProduct.productName, productId: selectedProduct._id, color: selectedColor, quantity, size: selectedSize, price: selectedProduct.price, productImgUrl: selectedProduct.imagesUrl[0] }));
+            if (status === 'succeeded') {
+                dispatch(showNotification({ type: 'success', message: 'Success, Product is added to card!' }));
+            }
+            else if (status === 'failed') {
+                dispatch(showNotification({ type: 'error', message: 'Sorry, something went wrong!' }));
+            }
         } catch (error) {
-            console.log(error);
+            dispatch(showNotification({ type: 'error', message: 'Sorry, something went wrong!' }));
+            console.error("Error adding to cart:", error);
         }
     };
 
-    if (!selectedProduct) {
-        return <h1>Loading.....</h1>;
+    if (status === 'loading' || !selectedProduct) {
+        return <Loader />;
     }
 
     return (

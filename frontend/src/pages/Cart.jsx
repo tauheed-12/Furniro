@@ -7,31 +7,52 @@ import CartCard from '../components/CartCard';
 import CartTotal from '../components/CartTotal';
 import Spinner from '../components/Spinner';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import { showNotification } from '../slices/notificationSlice';
+import { setTotalCheckoutValue, setProductIds } from '../slices/checkoutSlice';
+import { useNavigate } from 'react-router-dom';
 
 import sofa from '../assets/Group 107.png';
 
 import {
-    addToCart,
     deleteFromCart,
-    clearCart,
     fetchCart,
 } from '../slices/cartSlice';
 
 const Cart = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { items, status, error } = useSelector((state) => state.cart);
 
     useEffect(() => {
         dispatch(fetchCart());
     }, [dispatch]);
 
+    const handleCheckout = () => {
+        if (items.length === 0) {
+            dispatch(showNotification({ type: 'error', message: 'Your cart is empty. Please add items to proceed to checkout.' }));
+            return;
+        }
+        dispatch(setTotalCheckoutValue(items.reduce((total, item) => total + item.price, 0)));
+        const productIds = items.map(item => item.productId._id);
+        dispatch(setProductIds(productIds));
+        navigate('/checkout');
+    }
+
     const removeProduct = (productId) => {
+        console.log("Removing product with ID:", productId);
         dispatch(deleteFromCart(productId));
+        if (status === 'succeeded') {
+            dispatch(showNotification({ type: 'success', message: 'Success, Product is removed from the cart!' }));
+            dispatch(fetchCart());
+        }
+        else if (status === 'failed') {
+            dispatch(showNotification({ type: 'error', message: 'Sorry, something went wrong!' }));
+        }
     };
 
-    const handleClearCart = () => {
-        dispatch(clearCart());
-    };
+    // const handleClearCart = () => {
+    //     dispatch(clearCart());
+    // };
 
     const totalAmount = items.reduce((total, item) => total + item.price, 0);
 
@@ -66,8 +87,8 @@ const Cart = () => {
                         <div className="px-4 md:px-10">
                             {items.map((item) => (
                                 <CartCard
-                                    key={item.productId}
-                                    productId={item.productId}
+                                    key={item?.productId?._id}
+                                    productId={item?.productId?._id}
                                     imgName={item.productImgUrl || sofa}
                                     price={item.price}
                                     productName={item.productName}
@@ -76,17 +97,7 @@ const Cart = () => {
                             ))}
 
                             {/* Cart Total */}
-                            <CartTotal totalAmount={totalAmount} />
-
-                            {/* Clear Cart Button */}
-                            <div className="flex justify-center mt-6">
-                                <button
-                                    className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                                    onClick={handleClearCart}
-                                >
-                                    Clear Cart
-                                </button>
-                            </div>
+                            <CartTotal totalAmount={totalAmount} handleCheckout={handleCheckout} />
                         </div>
                     )}
                 </>

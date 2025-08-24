@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../Context/AuthContext';
 import axios from 'axios';
+import { getCookie } from '../helper/helper';
 
 const OrdersPage = () => {
-  const { userId } = useAuth();
+  const userId = getCookie('userId');
+  const token = getCookie('token');
   const [ordersData, setOrdersData] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
-    if (!tokenCookie) {
-      return;
-    }
-
-    const token = tokenCookie.split('=')[1];
     const fetchUsersOrder = async () => {
       try {
         const response = await axios.post(
-          `http://13.201.9.84:8080/user/findOrders`,
+          `http://localhost:8080/user/findOrders`,
           { userId: userId },
           {
             headers: {
@@ -35,7 +30,7 @@ const OrdersPage = () => {
     if (userId) {
       fetchUsersOrder();
     }
-  }, [userId]);
+  }, [userId, token]);
 
   return (
     <div className="px-16 py-10">

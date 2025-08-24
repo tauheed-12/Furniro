@@ -1,30 +1,23 @@
 import React, { useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { usePayment } from "../Context/PaymentContext";
-import { useAuth } from "../Context/AuthContext";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getCookie } from "../helper/helper";
 
 const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const { billingDetails, payMethod } = usePayment();
-    const { userId } = useAuth();
+    const userId = getCookie('userId');
+    const token = getCookie('token');
     const navigate = useNavigate();
+    const { billingDetails, payMethod } = useSelector(state => state.payment);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
-        const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
-        if (!tokenCookie) {
-            setLoading(false);
-            return;
-        }
-
-        const token = tokenCookie.split('=')[1];
-
         const { error, paymentMethod } = await stripe.createPaymentMethod({
             type: "card",
             card: elements.getElement(CardElement),
@@ -42,9 +35,7 @@ const PaymentForm = () => {
                     payment_method: id,
                 }),
             });
-
             const data = await response.json();
-            console.log(data);
             if (data.error) {
                 setMessage(`Payment failed: ${data.error.message}`);
             } else {

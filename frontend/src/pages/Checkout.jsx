@@ -1,47 +1,45 @@
 import React, { useState } from 'react';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
-import { useCheckout } from '../Context/CheckoutContext';
-import { useAuth } from '../Context/AuthContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CheckoutTotal from '../components/CheckoutTotal';
 import CheckoutForm from '../components/CheckoutForm';
-import { usePayment } from '../Context/PaymentContext';
+import { setBillingDetails, setPaymentMethod } from '../slices/paymentSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { getCookie } from '../helper/helper';
+import Loader from '../components/Loader';
+import { showNotification } from '../slices/notificationSlice';
 
 const Checkout = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const inputCss = 'border-solid border-[1px] border-black text-lg px-5 py-2 rounded-lg w-full';
     const labelCss = 'text-lg font-semibold mb-2';
     const inputDivCss = 'flex flex-col justify-start items-start mb-4';
-    const { userId } = useAuth();
-    const { billingDetails, setBillingDetails, payMethod, setPaymentMethod } = usePayment();
+    const userId = getCookie('userId');
+    const token = getCookie('token');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { totalCheckoutValue } = useCheckout();
+
+    const { totalCheckoutValue } = useSelector(state => state.checkout);
+    const { billingDetails, payMethod } = useSelector(state => state.payment);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setBillingDetails({
+        dispatch(setBillingDetails({
             ...billingDetails,
             [name]: value
-        });
+        }));
     };
-    const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
-    if (!tokenCookie) {
-        setError("Authentication token not found. Please log in.");
-        setLoading(false);
-        return;
-    }
-
-    const token = tokenCookie.split('=')[1];
 
     const handlePaymentMethodChange = (event) => {
-        setPaymentMethod(event.target.value);
+        dispatch(setPaymentMethod(event.target.value));
     };
 
     const validateForm = () => {
         const requiredFields = ['firstName', 'lastName', 'country', 'streetAddress', 'city', 'province', 'zipCode', 'emailAddress'];
+        console.log(billingDetails, payMethod);
         for (const field of requiredFields) {
             if (!billingDetails[field]) {
                 return false;
@@ -61,13 +59,12 @@ const Checkout = () => {
         }
         setLoading(true);
         setError(null);
-        console.log(billingDetails, userId, payMethod);
         try {
             if (totalCheckoutValue !== 0) {
                 if (payMethod === "bankTransfer") {
                     navigate('/stripe/checkout');
                 } else {
-                    const response = await axios.post(`${process.env.BACKEND_URI}/product/checkout`, {
+                    await axios.post(`http://localhost:8080/product/checkout`, {
                         billingDetails,
                         userId,
                         payMethod
@@ -76,15 +73,16 @@ const Checkout = () => {
                             'Authorization': `Bearer ${token}`
                         }
                     });
-                    console.log(response.data);
+                    dispatch(showNotification({ type: 'success', message: 'Order placed successfully!' }));
                     navigate('/success');
                 }
             } else {
-                setError("Nothing to checkout!!");
+                dispatch(showNotification({ type: 'error', message: 'Nothing to checkout!!' }));
+                setLoading(false);
             }
         } catch (error) {
             console.log('Error in checkout', error);
-            setError('An error occurred during checkout. Please try again.');
+            dispatch(showNotification({ type: 'error', message: 'An error occurred during checkout. Please try again.' }));
         } finally {
             setLoading(false);
         }
@@ -93,16 +91,20 @@ const Checkout = () => {
     return (
         <div>
             <Hero title={'Checkout'} />
-            <h2 className='text-3xl font-bold text-center mt-12'>Billing Details</h2>
-            <div className='flex flex-col md:flex-row justify-between px-10 py-10 gap-10'>
-                <CheckoutForm handleChange={handleChange} handleFormSubmit={handleFormSubmit}
-                    error={error} inputCss={inputCss} inputDivCss={inputDivCss} labelCss={labelCss}
-                    billingDetails={billingDetails} handlePaymentMethodChange={handlePaymentMethodChange}
-                    loading={loading}
-                />
-                <CheckoutTotal totalCheckoutValue={totalCheckoutValue} />
-            </div>
-            <Features />
+            {loading ? <Loader /> :
+                <>
+                    <h2 className='text-3xl font-bold text-center mt-12'>Billing Details</h2>
+                    <div className='flex flex-col md:flex-row justify-between px-10 py-10 gap-10'>
+                        <CheckoutForm handleChange={handleChange} handleFormSubmit={handleFormSubmit}
+                            error={error} inputCss={inputCss} inputDivCss={inputDivCss} labelCss={labelCss}
+                            billingDetails={billingDetails} handlePaymentMethodChange={handlePaymentMethodChange}
+                            loading={loading}
+                        />
+                        <CheckoutTotal totalCheckoutValue={totalCheckoutValue} />
+                    </div>
+                    <Features />
+                </>
+            }
         </div>
     );
 };

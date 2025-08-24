@@ -95,6 +95,7 @@ exports.getCartProduct = async (req, res) => {
 exports.removeCart = async (req, res) => {
     try {
         const { userId, productId } = req.body;
+        console.log("Removing from the cartttttttttttt", userId, productId);
         const user = await User.findByIdAndUpdate(
             userId,
             { $pull: { cart: { productId } } },

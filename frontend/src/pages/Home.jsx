@@ -19,7 +19,6 @@ const Home = () => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.post(`http://localhost:8080/product/getproduct`, 16);
-                console.log(response);
                 setProducts(response.data);
             } catch (error) {
                 console.log(error);

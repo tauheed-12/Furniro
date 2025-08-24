@@ -1,17 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Utility to get token from localStorage
-const getToken = () => localStorage.getItem("token") || "";
-const getUserId = () => localStorage.getItem("userId") || "";
+// --- Cookie Helpers ---
+const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+};
 // --- Async Thunks ---
 
 export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) => {
     try {
-        const userId = getUserId();
+        const userId = getCookie("userId");
+        console.log("Fetching cart for userId:", getCookie('token'), userId);
         const response = await axios.post('http://localhost:8080/product/cartProduct', { userId }, {
             headers: {
-                Authorization: `Bearer ${getToken()}`
+                Authorization: `Bearer ${getCookie('token')}`
             }
         });
         return response.data;
@@ -22,9 +25,9 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) 
 
 export const addToCart = createAsyncThunk('cart/addToCart', async (item, thunkAPI) => {
     try {
-        const response = await axios.post('/api/cart', item, {
+        const response = await axios.post('http://localhost:8080/product/addCart', { userId: getCookie("userId"), ...item }, {
             headers: {
-                Authorization: `Bearer ${getToken()}`
+                Authorization: `Bearer ${getCookie('token')}`
             }
         });
         return response.data;
@@ -33,14 +36,14 @@ export const addToCart = createAsyncThunk('cart/addToCart', async (item, thunkAP
     }
 });
 
-export const deleteFromCart = createAsyncThunk('cart/deleteFromCart', async (itemId, thunkAPI) => {
+export const deleteFromCart = createAsyncThunk('cart/deleteFromCart', async (productId, thunkAPI) => {
     try {
-        await axios.delete(`/api/cart/${itemId}`, {
+        await axios.post(`http://localhost:8080/product/removeCart`, { userId: getCookie("userId"), productId }, {
             headers: {
-                Authorization: `Bearer ${getToken()}`
+                Authorization: `Bearer ${getCookie('token')}`
             }
         });
-        return itemId;
+        return productId;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to delete from cart');
     }
@@ -50,7 +53,7 @@ export const clearCart = createAsyncThunk('cart/clearCart', async (_, thunkAPI) 
     try {
         await axios.delete('/api/cart/clear', {
             headers: {
-                Authorization: `Bearer ${getToken()}`
+                Authorization: `Bearer ${getCookie('token')}`
             }
         });
         return [];
