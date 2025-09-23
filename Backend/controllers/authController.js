@@ -6,9 +6,7 @@ const jwt = require('jsonwebtoken');
 exports.register = async (req, res) => {
     try {
         const { email, password } = req.body;
-
         const existingUser = await User.findOne({ email });
-
         if (existingUser) {
             if (existingUser.isVerified) {
                 return res.status(409).json({ message: "User already exists and is verified" });
@@ -105,3 +103,48 @@ exports.verifyEmail = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const existingUser = await User.findOne({ email });
+        if (!existingUser) {
+            return res.status(401).json({ message: "User does not exist!" });
+        }
+        if (!existingUser.isVerified) {
+            await sendEmail(email, 'VERIFY', existingUser._id);
+            return res.status(401).json({ message: "User is not verified. Please verify the email." });
+        }
+        await sendEmail(email, 'FORGOT_PASSWORD', existingUser._id);
+        return res.status(200).json({ message: "Reset Password Email Is Sent!!" });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        const user = await User.findOne({
+            forgotPasswordToken: token,
+            forgotPasswordTokenExpiry: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+
+        user.forgotPasswordToken = undefined;
+        user.forgotPasswordTokenExpiry = undefined;
+
+        await user.save();
+
+        return res.status(200).json({ message: "Password has been reset successfully" });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+

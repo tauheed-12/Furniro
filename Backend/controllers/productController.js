@@ -95,7 +95,7 @@ exports.getCartProduct = async (req, res) => {
 exports.removeCart = async (req, res) => {
     try {
         const { userId, productId } = req.body;
-        console.log("Removing from the cartttttttttttt", userId, productId);
+        console.log("Removing from the cart", userId, productId);
         const user = await User.findByIdAndUpdate(
             userId,
             { $pull: { cart: { productId } } },
@@ -104,7 +104,7 @@ exports.removeCart = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        res.status(200).json({ message: "Product removed from cart successfully", userData: user });
+        res.status(200).json({ message: "Product removed from cart successfully", userData: user.cart });
     } catch (error) {
         console.error("Error removing product from cart:", error);
         res.status(500).json({ message: "Internal server error" });

@@ -39,7 +39,6 @@ const Checkout = () => {
 
     const validateForm = () => {
         const requiredFields = ['firstName', 'lastName', 'country', 'streetAddress', 'city', 'province', 'zipCode', 'emailAddress'];
-        console.log(billingDetails, payMethod);
         for (const field of requiredFields) {
             if (!billingDetails[field]) {
                 return false;
@@ -81,7 +80,6 @@ const Checkout = () => {
                 setLoading(false);
             }
         } catch (error) {
-            console.log('Error in checkout', error);
             dispatch(showNotification({ type: 'error', message: 'An error occurred during checkout. Please try again.' }));
         } finally {
             setLoading(false);

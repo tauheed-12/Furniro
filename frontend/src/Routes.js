@@ -17,6 +17,8 @@ import VerifyMail from './pages/VerifyMail.jsx';
 import PaymentForm from './pages/PaymentForm.jsx';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
+import ResetPasswordPage from './pages/ResetPassword.jsx';
 
 const stripePromise = loadStripe('pk_test_51PytxG2MwbGLW2CMjN9jQukdRo5569zPL5LxzfHYBR9L4Ywy0ws27isxM3fe45JGS5yQTBrdAJ7f6HVg6Pfp7qxc000XDNJyo7');
 
@@ -45,6 +47,12 @@ const router = createBrowserRouter([{
         },
         {
             path: '/add', element: <AddProduct />
+        },
+        {
+            path: '/forgot-password', element: <ForgotPasswordPage />
+        },
+        {
+            path: '/forgotpassword/:token', element: <ResetPasswordPage />
         },
         {
             path: '/verifyemail/:token', element: <VerifyMail />

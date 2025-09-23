@@ -10,7 +10,6 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 import { showNotification } from '../slices/notificationSlice';
 import { setTotalCheckoutValue, setProductIds } from '../slices/checkoutSlice';
 import { useNavigate } from 'react-router-dom';
-
 import sofa from '../assets/Group 107.png';
 
 import {
@@ -39,9 +38,9 @@ const Cart = () => {
     }
 
     const removeProduct = (productId) => {
-        console.log("Removing product with ID:", productId);
         dispatch(deleteFromCart(productId));
         if (status === 'succeeded') {
+            dispatch(fetchCart());
             dispatch(showNotification({ type: 'success', message: 'Success, Product is removed from the cart!' }));
             dispatch(fetchCart());
         }
@@ -62,7 +61,9 @@ const Cart = () => {
 
             {/* Loading and Error States */}
             {status === 'loading' && (
-                <Spinner />
+                <div className="flex justify-center items-center h-[70vh]">
+                    <Spinner />
+                </div>
             )}
             {status === 'failed' && (
                 <div className="flex flex-col items-center justify-center text-center py-20 px-4">

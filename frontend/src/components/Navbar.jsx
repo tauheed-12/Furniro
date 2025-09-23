@@ -13,7 +13,6 @@ const Navbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { user } = useSelector(state => {
-        console.log(state.auth, "navbar error sala")
         return state.auth
     });
 
@@ -31,7 +30,7 @@ const Navbar = () => {
             </div>
             <FiAlignJustify className='lg:hidden cursor-pointer text-2xl' onClick={() => setNavbarOpen(true)} />
             <div className='flex-1 hidden lg:flex justify-between items-center'>
-                {['Home', 'Shop', 'Blog', 'Contact'].map((link, index) => (
+                {['Home', 'Shop', 'Contact'].map((link, index) => (
                     <NavLink
                         key={index}
                         to={`${link === 'Home' ? '/' : '/' + link.toLowerCase()}`}
@@ -79,54 +78,99 @@ const Navbar = () => {
                 )}
             </div>
             {isNavbarOpen && (
-                <div className='bg-primary text-white absolute top-0 right-0 h-[100vh] w-2/3 px-6 py-8'>
-                    <FiX className='absolute top-4 right-4 text-2xl font-bold cursor-pointer' onClick={() => setNavbarOpen(false)} />
-                    <nav className='flex flex-col justify-start items-start w-full gap-4 mt-10'>
-                        {['Home', 'Shop', 'Blog', 'Contact'].map((link, index) => (
-                            <NavLink
-                                key={index}
-                                to={`${link === 'Home' ? '/' : '/' + link.toLowerCase()}`}
-                                className={({ isActive }) => isActive ? 'text-text-secondary' : 'text-white'}
-                                onClick={() => setNavbarOpen(false)}
-                            >
-                                {link}
-                            </NavLink>
-                        ))}
-                        {user.token && <CgProfile className='cursor-pointer' />}
-                        {user.token && <CiHeart className='cursor-pointer' />}
-                        <CiSearch className='cursor-pointer' />
-                        {user.token &&
-                            <NavLink to='/cart'>
-                                <CiShoppingCart className='text-xl' />
-                            </NavLink>}
-                        {!user.token ? (
-                            <>
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+                        onClick={() => setNavbarOpen(false)}
+                    ></div>
+
+                    {/* Sidebar */}
+                    <div className="fixed top-0 right-0 h-full w-2/3 max-w-xs bg-primary text-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out translate-x-0">
+                        {/* Close Button */}
+                        <FiX
+                            className="absolute top-4 right-4 text-3xl font-bold cursor-pointer hover:text-text-secondary transition"
+                            onClick={() => setNavbarOpen(false)}
+                        />
+
+                        {/* Logo */}
+                        <div className="flex items-center gap-2 px-6 mt-6">
+                            <img src={logo} alt="logo" className="h-8" />
+                            <span className="font-bold text-xl">Furniro</span>
+                        </div>
+
+                        {/* Links */}
+                        <nav className="flex flex-col justify-start items-start w-full gap-6 mt-10 px-6">
+                            {['Home', 'Shop', 'Contact'].map((link, index) => (
                                 <NavLink
-                                    to="/signIn"
-                                    className={({ isActive }) => isActive ? 'text-text-secondary' : 'text-white'}
+                                    key={index}
+                                    to={`${link === 'Home' ? '/' : '/' + link.toLowerCase()}`}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 text-lg transition hover:text-text-secondary ${isActive ? 'text-yellow-100 font-semibold' : 'text-white'
+                                        }`
+                                    }
                                     onClick={() => setNavbarOpen(false)}
                                 >
-                                    <button className='px-6 py-2 rounded-xl border-2 border-solid'>SignIn</button>
+                                    {link}
                                 </NavLink>
+                            ))}
+                            {user.token &&
                                 <NavLink
-                                    to="/signup"
-                                    className={({ isActive }) => isActive ? 'text-text-secondary' : 'text-white'}
-                                    onClick={() => setNavbarOpen(false)}
-                                >
-                                    Signup
+                                    to={`/${user.userId}/orders`}
+                                    className={({ isActive }) => isActive ? 'text-yellow-100 font-semibold' : 'text-white'}>
+                                    Your Orders
                                 </NavLink>
-                            </>
-                        ) : (
-                            <NavLink
-                                to="/logout"
-                                className={({ isActive }) => isActive ? 'text-text-secondary' : 'text-white'}
-                                onClick={() => setNavbarOpen(false)}
-                            >
-                                Logout
-                            </NavLink>
-                        )}
-                    </nav>
-                </div>
+                            }
+                            {/* Divider */}
+                            <hr className="w-full border-white/20 my-4" />
+
+                            {/* Icons Section */}
+                            <div className="flex gap-5 text-2xl">
+                                {user.token && <CgProfile className="cursor-pointer hover:text-text-secondary" />}
+                                {user.token && <CiHeart className="cursor-pointer hover:text-text-secondary" />}
+                                <CiSearch className="cursor-pointer hover:text-text-secondary" />
+                                {user.token && (
+                                    <NavLink to="/cart" onClick={() => setNavbarOpen(false)}>
+                                        <CiShoppingCart className="cursor-pointer hover:text-text-secondary" />
+                                    </NavLink>
+                                )}
+                            </div>
+
+                            {/* Auth Buttons */}
+                            <div className="mt-6 flex flex-col gap-4 w-full">
+                                {!user.token ? (
+                                    <>
+                                        <NavLink
+                                            to="/signIn"
+                                            onClick={() => setNavbarOpen(false)}
+                                        >
+                                            <button className="w-full px-6 py-2 rounded-xl border-2 border-white hover:bg-white hover:text-primary transition">
+                                                Sign In
+                                            </button>
+                                        </NavLink>
+                                        <NavLink
+                                            to="/signup"
+                                            onClick={() => setNavbarOpen(false)}
+                                            className="text-lg text-white hover:text-text-secondary transition"
+                                        >
+                                            Signup
+                                        </NavLink>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            HandleLogout();
+                                            setNavbarOpen(false);
+                                        }}
+                                        className="w-full px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition"
+                                    >
+                                        Logout
+                                    </button>
+                                )}
+                            </div>
+                        </nav>
+                    </div>
+                </>
             )}
         </nav>
     );

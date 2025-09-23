@@ -39,7 +39,7 @@ const PaymentForm = () => {
             if (data.error) {
                 setMessage(`Payment failed: ${data.error.message}`);
             } else {
-                const response = await axios.post('http://localhost:8080/product/checkout', {
+                await axios.post('http://localhost:8080/product/checkout', {
                     billingDetails,
                     userId,
                     payMethod
@@ -48,7 +48,6 @@ const PaymentForm = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                console.log(response.data);
                 navigate('/success');
                 setMessage("Payment successful!");
             }

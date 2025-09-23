@@ -11,7 +11,6 @@ const getCookie = (name) => {
 export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) => {
     try {
         const userId = getCookie("userId");
-        console.log("Fetching cart for userId:", getCookie('token'), userId);
         const response = await axios.post('http://localhost:8080/product/cartProduct', { userId }, {
             headers: {
                 Authorization: `Bearer ${getCookie('token')}`
@@ -119,8 +118,6 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(deleteFromCart.fulfilled, (state, action) => {
-                const itemId = action.payload;
-                state.items = state.items.filter(item => item.id !== itemId);
                 state.status = 'succeeded';
             })
             .addCase(deleteFromCart.rejected, (state, action) => {

@@ -1,5 +1,5 @@
 const ProductImage = ({ imageUrl }) => (
-    <div className='w-full md:w-1/2 flex justify-center md:justify-end bg-quaternary'>
+    <div className='w-full md:w-1/2'>
         <img src={imageUrl} alt='Product' />
     </div>
 );

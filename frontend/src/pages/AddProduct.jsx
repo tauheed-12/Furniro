@@ -128,7 +128,6 @@ const AddProduct = () => {
             });
             alert(response.data.message);
         } catch (error) {
-            console.error("Error submitting product:", error);
         }
     };
 

@@ -29,7 +29,7 @@ const SingleProduct = () => {
                 const response = await axios.post('http://www.localhost:8080/product/singleproduct', { productId });
                 setSelectedProduct(response.data);
             } catch (error) {
-                console.log(error);
+
             }
         };
         fetchProduct();
@@ -46,7 +46,6 @@ const SingleProduct = () => {
             }
         } catch (error) {
             dispatch(showNotification({ type: 'error', message: 'Sorry, something went wrong!' }));
-            console.error("Error adding to cart:", error);
         }
     };
 
