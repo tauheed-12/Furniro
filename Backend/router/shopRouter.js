@@ -1,40 +1,25 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
     getProducts,
-    addProducts,
     getSpecificProduct,
     getCartProduct,
     addToCart,
     checkoutProduct,
-    editProduct,
+    // editProduct,
     removeCart,
-    paymentWithStripe
-} = require('../controllers/productController.js');
-const authenticateToken = require('../middlewares/Authroizations.js');
-
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../config/cloudinary');
-
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'uploads',
-        allowed_formats: ['jpg', 'png', 'jpeg'],
-    },
-});
-const upload = multer({ storage: storage });
+    stripeWebhook
+} from '../controllers/productController.js';
+import authenticateToken from '../middlewares/Authroizations.js';
 
 const router = express.Router();
 
 router.post('/getproduct', getProducts);
 router.post('/singleproduct', getSpecificProduct);
-router.post('/add', upload.single('image'), addProducts);
 router.post('/addCart', authenticateToken, addToCart);
 router.post('/cartProduct', authenticateToken, getCartProduct);
 router.post('/checkout', authenticateToken, checkoutProduct);
-router.post('/editProduct', authenticateToken, editProduct);
+// router.post('/editProduct', authenticateToken, editProduct);
 router.post('/removeCart', authenticateToken, removeCart);
-router.post('/create-payment-intent', paymentWithStripe);
+router.post('/create-payment-intent', authenticateToken, stripeWebhook);
 
-module.exports = router;
+export default router;

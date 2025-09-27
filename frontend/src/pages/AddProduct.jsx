@@ -13,17 +13,15 @@ const AddProduct = () => {
         color: [{ colorName: "", quantity: 9 }],
         sizes: [{ sizeName: "", quantity: 8 }],
         features: [""],
-        image: null
+        image: null,
     };
 
     const [productDetails, setProductDetails] = useState(demoProduct);
+    const [loading, setLoading] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setProductDetails({
-            ...productDetails,
-            [name]: value,
-        });
+        setProductDetails({ ...productDetails, [name]: value });
     };
 
     const handleAddColor = () => {
@@ -36,10 +34,7 @@ const AddProduct = () => {
     const handleColorChange = (index, e) => {
         const { name, value } = e.target;
         const newColors = [...productDetails.color];
-        newColors[index] = {
-            ...newColors[index],
-            [name]: value,
-        };
+        newColors[index] = { ...newColors[index], [name]: value };
         setProductDetails({ ...productDetails, color: newColors });
     };
 
@@ -53,10 +48,7 @@ const AddProduct = () => {
     const handleSizeChange = (index, e) => {
         const { name, value } = e.target;
         const newSizes = [...productDetails.sizes];
-        newSizes[index] = {
-            ...newSizes[index],
-            [name]: value,
-        };
+        newSizes[index] = { ...newSizes[index], [name]: value };
         setProductDetails({ ...productDetails, sizes: newSizes });
     };
 
@@ -76,29 +68,24 @@ const AddProduct = () => {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        setProductDetails({
-            ...productDetails,
-            image: file
-        })
+        setProductDetails({ ...productDetails, image: file });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            setLoading(true);
             const formData = new FormData();
-
 
             formData.append("productName", productDetails.productName);
             formData.append("description", productDetails.description);
             formData.append("price", productDetails.price);
             formData.append("discount", productDetails.discount);
 
-
             productDetails.color.forEach((color, index) => {
                 formData.append(`color[${index}][colorName]`, color.colorName);
                 formData.append(`color[${index}][quantity]`, color.quantity);
             });
-
 
             productDetails.sizes.forEach((size, index) => {
                 formData.append(`sizes[${index}][sizeName]`, size.sizeName);
@@ -110,46 +97,64 @@ const AddProduct = () => {
             });
 
             if (productDetails.image) {
-                formData.append('image', productDetails.image);
+                formData.append("image", productDetails.image);
             }
 
-            const tokenCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('token='));
-            if (!tokenCookie) {
-                return;
-            }
+            const tokenCookie = document.cookie
+                .split(";")
+                .find((cookie) => cookie.trim().startsWith("token="));
+            if (!tokenCookie) return;
 
-            const token = tokenCookie.split('=')[1];
+            const token = tokenCookie.split("=")[1];
 
-            const response = await axios.post(`${process.env.BACKEND_URI}/product/add`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            const response = await axios.post(
+                `http://localhost:8080/user/add`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
             alert(response.data.message);
+            setProductDetails(demoProduct); // reset form after success
         } catch (error) {
+            console.error("Error adding product:", error);
+        } finally {
+            setLoading(false);
         }
     };
-
 
     return (
         <div>
             <Hero title={"Add Product"} />
-            <div className='flex flex-col justify-center items-center px-6 md:px-12 lg:px-20 py-10 md:py-20 gap-4'>
-                <h1 className='text-3xl font-semibold'>Product Details</h1>
-                <ProductForm
-                    productDetails={productDetails}
-                    handleInputChange={handleInputChange}
-                    handleSubmit={handleSubmit}
-                    handleAddColor={handleAddColor}
-                    handleColorChange={handleColorChange}
-                    handleAddFeature={handleAddFeature}
-                    handleSizeChange={handleSizeChange}
-                    handleFeatureChange={handleFeatureChange}
-                    handleAddSize={handleAddSize}
-                    handleImageChange={handleImageChange}
-                />
+
+            <div className="flex flex-col justify-center items-center px-6 md:px-12 lg:px-20 py-10 md:py-16 gap-8">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center">
+                    Add New Product
+                </h1>
+                <p className="text-gray-500 text-center max-w-2xl">
+                    Fill in the details below to add a new product to your store.
+                </p>
+
+                <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                    <ProductForm
+                        productDetails={productDetails}
+                        handleInputChange={handleInputChange}
+                        handleSubmit={handleSubmit}
+                        handleAddColor={handleAddColor}
+                        handleColorChange={handleColorChange}
+                        handleAddFeature={handleAddFeature}
+                        handleSizeChange={handleSizeChange}
+                        handleFeatureChange={handleFeatureChange}
+                        handleAddSize={handleAddSize}
+                        handleImageChange={handleImageChange}
+                        loading={loading}
+                    />
+                </div>
             </div>
+
             <Features />
         </div>
     );

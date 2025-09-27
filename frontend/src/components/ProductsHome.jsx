@@ -5,12 +5,12 @@ const ProductsHome = ({ products, numbOfDisplayedProduct, isHideButton, setNumbe
         <div className='flex flex-row justify-center gap-3 items-center flex-wrap'>
             {products.slice(0, numbOfDisplayedProduct).map((product, id) => (
                 <ProductCard
-                    productId={product._id}
-                    imgName={product.imagesUrl[0]}
-                    productName={product.productName}
+                    productId={product.id}
+                    imgName={product.imageUrl}
+                    productName={product.name}
                     description={product.description}
                     price={product.price}
-                    percentageOff={product.discount}
+                    percentageOff={10}
                     key={id}
                 />
             ))}

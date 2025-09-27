@@ -1,150 +1,162 @@
-const bcrypt = require('bcrypt');
-const User = require('../models/userModel');
-const sendEmail = require('../helper/sendEmail');
-const jwt = require('jsonwebtoken');
+import bcrypt from 'bcrypt';
+import { pool } from '../config/dbConfig.js';
+import sendEmail from '../helper/sendEmail.js';
+import jwt from 'jsonwebtoken';
 
-exports.register = async (req, res) => {
+// --- Register ---
+export const register = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            if (existingUser.isVerified) {
+
+        const [rows] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
+
+        if (rows.length > 0) {
+            const user = rows[0];
+            if (user.is_verified) {
                 return res.status(409).json({ message: "User already exists and is verified" });
             } else {
-                return res.status(409).json({ message: "User already exists but is not verified. Please verify." });
+                await sendEmail(email, 'VERIFY', user.id);
+                return res.status(200).json({
+                    message: "User exists but not verified. Verification email sent again.",
+                });
             }
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const [result] = await pool.query(
+            'INSERT INTO Users (email, password) VALUES (?, ?)',
+            [email, hashedPassword]
+        );
 
-        const newUser = new User({
-            email,
-            password: hashedPassword,
-        });
+        await sendEmail(email, 'VERIFY', result.insertId);
 
-        await newUser.save();
-
-        sendEmail(email, 'VERIFY', newUser._id);
-
-        return res.status(201).json({ message: "User registered successfully. Please verify your email." });
+        return res
+            .status(201)
+            .json({ message: "User registered successfully. Please verify your email." });
 
     } catch (error) {
-        console.error('Error registering user:', error);
+        console.error(error);
         return res.status(500).json({ message: "Unable to register user!" });
     }
 };
 
 
-exports.login = async (req, res) => {
+// --- Login ---
+export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const existingUser = await User.findOne({ email });
-        if (!existingUser) {
+        const [rows] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
+
+        if (rows.length === 0) {
             return res.status(401).json({ message: "User does not exist!" });
         }
 
-        if (!existingUser.isVerified) {
-            await sendEmail(email, 'VERIFY', existingUser._id);
+        const user = rows[0];
+
+        if (!user.is_verified) {
+            await sendEmail(email, 'VERIFY', user.id);
             return res.status(401).json({ message: "User is not verified. Please verify the email." });
         }
 
-        const isPasswordMatched = await bcrypt.compare(password, existingUser.password);
+        const isPasswordMatched = await bcrypt.compare(password, user.password);
         if (!isPasswordMatched) {
             return res.status(401).json({ message: "Incorrect Password!" });
         }
 
         const token = jwt.sign(
-            { email, userId: existingUser._id, isAdmin: existingUser.isAdmin },
-            "My_secret_key",
+            { email, userId: user.id, isAdmin: user.is_admin },
+            process.env.JWT_SECRET || "My_secret_key",
             { expiresIn: "30m" }
         );
-
-        const userId = existingUser._id
-
-        const isAdmin = existingUser.isAdmin;
-
-
-        return res.status(200).json({ message: "Login successful!", userId, isAdmin, token });
-
+        return res.status(200).json({ message: "Login successful!", userId: user.id, isAdmin: user.is_admin, token });
     } catch (error) {
-        console.error('Error during login:', error);
+        console.error(error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
-
-
-exports.verifyEmail = async (req, res) => {
+// --- Verify Email ---
+export const verifyEmail = async (req, res) => {
     try {
         const { token } = req.body;
 
-        const user = await User.findOne({
-            verifyToken: token,
-            verifyTokenExpiry: { $gt: Date.now() },
-        });
-
-        if (!user) {
-            return res.status(400).json({ error: "Invalid token details" });
+        const [rows] = await pool.query(
+            'SELECT * FROM Users WHERE verify_token = ? AND verify_token_expiry > ?',
+            [token, Date.now()]
+        );
+        console.log(rows);
+        if (rows.length === 0) {
+            return res.status(400).json({ error: "Invalid or expired token" });
         }
 
-        user.isVerified = true;
-        user.verifyToken = undefined;
-        user.verifyTokenExpiry = undefined;
+        const user = rows[0];
 
-        await user.save();
+        await pool.query(
+            'UPDATE Users SET is_verified = 1, verify_token = NULL, verify_token_expiry = NULL WHERE id = ?',
+            [user.id]
+        );
 
-        return res.status(200).json({
-            message: "Email verified successfully",
-            success: true,
-        });
+        return res.status(200).json({ message: "Email verified successfully", success: true });
 
     } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: error.message });
     }
 };
 
-exports.forgotPassword = async (req, res) => {
+// --- Forgot Password ---
+export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const existingUser = await User.findOne({ email });
-        if (!existingUser) {
+
+        const [rows] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
+        if (rows.length === 0) {
             return res.status(401).json({ message: "User does not exist!" });
         }
-        if (!existingUser.isVerified) {
-            await sendEmail(email, 'VERIFY', existingUser._id);
+
+        const user = rows[0];
+
+        if (!user.is_verified) {
+            await sendEmail(email, 'VERIFY', user.id);
             return res.status(401).json({ message: "User is not verified. Please verify the email." });
         }
-        await sendEmail(email, 'FORGOT_PASSWORD', existingUser._id);
+
+        await sendEmail(email, 'FORGOT_PASSWORD', user.id);
         return res.status(200).json({ message: "Reset Password Email Is Sent!!" });
+
     } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: error.message });
     }
-}
+};
 
-exports.resetPassword = async (req, res) => {
+// --- Reset Password ---
+export const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
-        const user = await User.findOne({
-            forgotPasswordToken: token,
-            forgotPasswordTokenExpiry: { $gt: Date.now() },
-        });
 
-        if (!user) {
+        const [rows] = await pool.query(
+            'SELECT * FROM Users WHERE forgot_password_token = ? AND forgot_password_token_expiry > ?',
+            [token, Date.now()]
+        );
+
+        if (rows.length === 0) {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
+        const user = rows[0];
 
-        user.forgotPasswordToken = undefined;
-        user.forgotPasswordTokenExpiry = undefined;
-
-        await user.save();
+        await pool.query(
+            'UPDATE Users SET password = ?, forgot_password_token = NULL, forgot_password_token_expiry = NULL WHERE id = ?',
+            [hashedPassword, user.id]
+        );
 
         return res.status(200).json({ message: "Password has been reset successfully" });
+
     } catch (error) {
-        console.error('Error resetting password:', error);
+        console.error(error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
-

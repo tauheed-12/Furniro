@@ -4,19 +4,18 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../slices/cartSlice';
+import { showNotification } from '../slices/notificationSlice';
 
 import ProductCard from '../components/ProductCard';
 import ProductImage from '../components/SingleProductPage/ProductImage';
 import ProductDetails from '../components/SingleProductPage/ProductDetails';
 import ProductTabs from '../components/SingleProductPage/ProductTabs';
 import Loader from '../components/Loader';
-import { showNotification } from '../slices/notificationSlice';
-
 
 const SingleProduct = () => {
     const dispatch = useDispatch();
     const { status } = useSelector((state) => state.cart);
-    const [selectedButton, setSelectedButton] = useState(1);
+
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState(null);
@@ -26,22 +25,38 @@ const SingleProduct = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.post('http://www.localhost:8080/product/singleproduct', { productId });
+                const response = await axios.post('http://localhost:8080/product/singleproduct', { productId });
                 setSelectedProduct(response.data);
-            } catch (error) {
 
+                // Auto-select first color & first size
+                const firstColor = response.data.colors[0]?.colorName;
+                const firstSize = response.data.colors[0]?.sizes[0]?.size;
+                setSelectedColor(firstColor || null);
+                setSelectedSize(firstSize || null);
+            } catch (error) {
+                console.error("Error fetching product:", error);
             }
         };
         fetchProduct();
     }, [productId]);
 
-    const handleAddCart = async () => {
+    const handleAddCart = () => {
+        if (!selectedProduct) return;
+
         try {
-            dispatch(addToCart({ productName: selectedProduct.productName, productId: selectedProduct._id, color: selectedColor, quantity, size: selectedSize, price: selectedProduct.price, productImgUrl: selectedProduct.imagesUrl[0] }));
+            dispatch(addToCart({
+                productName: selectedProduct.name,
+                productId: selectedProduct.id,
+                color: selectedColor,
+                quantity,
+                size: selectedSize,
+                price: selectedProduct.price,
+                productImgUrl: selectedProduct.imageUrl
+            }));
+
             if (status === 'succeeded') {
-                dispatch(showNotification({ type: 'success', message: 'Success, Product is added to card!' }));
-            }
-            else if (status === 'failed') {
+                dispatch(showNotification({ type: 'success', message: 'Success, Product added to cart!' }));
+            } else {
                 dispatch(showNotification({ type: 'error', message: 'Sorry, something went wrong!' }));
             }
         } catch (error) {
@@ -55,13 +70,20 @@ const SingleProduct = () => {
 
     return (
         <div>
-            <div className='flex flex-wrap justify-start items-center py-2 px-4 md:px-6 bg-quaternary gap-8'>
-                <span className='flex flex-row justify-center items-center text-text-primary text-lg gap-3'>Home <GoChevronRight className='text-black' /></span>
-                <span className='flex flex-row justify-center items-center text-text-primary text-lg gap-3'>Shop <GoChevronRight className='text-black' /></span>
-                <span>{selectedProduct.productName}</span>
+            {/* Breadcrumb */}
+            <div className='flex flex-wrap justify-start items-center py-2 px-4 md:px-6 bg-quaternary gap-3'>
+                <span className='flex items-center text-text-primary text-lg gap-2'>
+                    Home <GoChevronRight className='text-black' />
+                </span>
+                <span className='flex items-center text-text-primary text-lg gap-2'>
+                    Shop <GoChevronRight className='text-black' />
+                </span>
+                <span className='text-lg font-medium'>{selectedProduct.name}</span>
             </div>
+
+            {/* Main Content */}
             <div className='flex flex-wrap justify-center items-start px-6 md:px-12 lg:px-24 py-8 gap-12'>
-                <ProductImage imageUrl={selectedProduct.imagesUrl[0]} />
+                <ProductImage imageUrl={selectedProduct.imageUrl} />
                 <ProductDetails
                     product={selectedProduct}
                     selectedSize={selectedSize}
@@ -73,7 +95,12 @@ const SingleProduct = () => {
                     handleAddCart={handleAddCart}
                 />
             </div>
-            <ProductTabs selectedButton={selectedButton} setSelectedButton={setSelectedButton} product={selectedProduct} />
+
+            <ProductTabs
+                product={selectedProduct}
+            />
+
+            {/* Related Products */}
             <div className='flex flex-col gap-8 justify-start items-center py-10 px-4 md:px-8 lg:px-12 bg-quaternary'>
                 <div className='flex flex-row justify-between items-center w-full'>
                     <h1 className='text-3xl font-semibold'>Related Products</h1>

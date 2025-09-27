@@ -12,10 +12,7 @@ import { setTotalCheckoutValue, setProductIds } from '../slices/checkoutSlice';
 import { useNavigate } from 'react-router-dom';
 import sofa from '../assets/Group 107.png';
 
-import {
-    deleteFromCart,
-    fetchCart,
-} from '../slices/cartSlice';
+import { deleteFromCart, fetchCart } from '../slices/cartSlice';
 
 const Cart = () => {
     const dispatch = useDispatch();
@@ -31,29 +28,24 @@ const Cart = () => {
             dispatch(showNotification({ type: 'error', message: 'Your cart is empty. Please add items to proceed to checkout.' }));
             return;
         }
-        dispatch(setTotalCheckoutValue(items.reduce((total, item) => total + item.price, 0)));
-        const productIds = items.map(item => item.productId._id);
+
+        const totalValue = items.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
+        dispatch(setTotalCheckoutValue(totalValue));
+
+        const productIds = items.map(item => item.productId);
         dispatch(setProductIds(productIds));
+
         navigate('/checkout');
-    }
+    };
 
     const removeProduct = (productId) => {
         dispatch(deleteFromCart(productId));
-        if (status === 'succeeded') {
-            dispatch(fetchCart());
-            dispatch(showNotification({ type: 'success', message: 'Success, Product is removed from the cart!' }));
-            dispatch(fetchCart());
-        }
-        else if (status === 'failed') {
-            dispatch(showNotification({ type: 'error', message: 'Sorry, something went wrong!' }));
-        }
+        // Fetch cart again after deletion
+        dispatch(fetchCart());
     };
 
-    // const handleClearCart = () => {
-    //     dispatch(clearCart());
-    // };
-
-    const totalAmount = items.reduce((total, item) => total + item.price, 0);
+    // Total amount considering quantity
+    const totalAmount = items.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
 
     return (
         <div>
@@ -65,6 +57,7 @@ const Cart = () => {
                     <Spinner />
                 </div>
             )}
+
             {status === 'failed' && (
                 <div className="flex flex-col items-center justify-center text-center py-20 px-4">
                     <FaExclamationTriangle className="text-5xl text-red-500 mb-4" />
@@ -83,17 +76,21 @@ const Cart = () => {
             {status === 'succeeded' && (
                 <>
                     {items.length === 0 ? (
-                        <h1 className="w-full text-center my-10">No product in cart</h1>
+                        <h1 className="w-full text-center my-10">No products in cart</h1>
                     ) : (
                         <div className="px-4 md:px-10">
                             {items.map((item) => (
                                 <CartCard
-                                    key={item?.productId?._id}
-                                    productId={item?.productId?._id}
-                                    imgName={item.productImgUrl || sofa}
-                                    price={item.price}
-                                    productName={item.productName}
+                                    key={item?.cart_id}
+                                    cartId={item?.cart_id}
+                                    productId={item?.product_id}
+                                    imgName={item?.image_url || sofa}
+                                    price={item?.price}
+                                    quantity={item?.quantity || 1}
+                                    productName={item?.product_name}
                                     removeProduct={removeProduct}
+                                    color={item?.color}
+                                    size={item?.size}
                                 />
                             ))}
 

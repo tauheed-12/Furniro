@@ -1,12 +1,12 @@
-const express = require('express');
-require('dotenv').config()
+import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const cors = require('cors');
-const connect = require('./config/dbConfig');
+import cors from 'cors';
 
-const userRouter = require('./router/userRouter');
-const shopRouter = require('./router/shopRouter');
-const authRouter = require('./router/authRouter');
+import userRouter from './router/userRouter.js';
+import shopRouter from './router/shopRouter.js';
+import authRouter from './router/authRouter.js';
 
 
 const app = express();
@@ -14,14 +14,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-connect();
-
 
 app.use('/user', userRouter);
 app.use('/product', shopRouter);
 app.use('/auth', authRouter);
-
-
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

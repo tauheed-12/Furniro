@@ -1,6 +1,9 @@
-const CartCard = ({ productId, imgName, price, productName, removeProduct }) => {
+const CartCard = ({ productId, cartId, imgName, price, productName, quantity = 1, color, size, removeProduct }) => {
+    const subtotal = (price * quantity).toFixed(2);
+
     return (
         <div className="flex flex-col lg:flex-row justify-between items-center gap-6 lg:gap-14 px-4 sm:px-8 lg:px-16 py-4 sm:py-6 lg:py-8 border-b">
+
             {/* Table layout for larger screens */}
             <table className="hidden md:table flex-[2] w-full text-sm md:text-base">
                 <thead className="bg-main text-black">
@@ -13,13 +16,17 @@ const CartCard = ({ productId, imgName, price, productName, removeProduct }) => 
                 </thead>
                 <tbody>
                     <tr className="text-center">
-                        <td className="flex flex-row gap-2 justify-center items-center py-2">
+                        <td className="flex flex-col md:flex-row gap-2 justify-center items-center py-2">
                             <img src={imgName} className="w-12 h-12 md:w-16 md:h-16" alt="product" />
-                            <span className="text-xs sm:text-sm md:text-base">{productName}</span>
+                            <div className="flex flex-col text-xs sm:text-sm md:text-base">
+                                <span>{productName}</span>
+                                {color && <span>Color: {color}</span>}
+                                {size && <span>Size: {size}</span>}
+                            </div>
                         </td>
                         <td>${price}</td>
-                        <td>1</td>
-                        <td>${price}</td>
+                        <td>{quantity}</td>
+                        <td>${subtotal}</td>
                     </tr>
                 </tbody>
             </table>
@@ -30,19 +37,21 @@ const CartCard = ({ productId, imgName, price, productName, removeProduct }) => 
                     <img src={imgName} className="w-16 h-16 object-cover rounded" alt="product" />
                     <div className="flex flex-col">
                         <span className="font-medium">{productName}</span>
+                        {color && <span className="text-gray-500 text-sm">Color: {color}</span>}
+                        {size && <span className="text-gray-500 text-sm">Size: {size}</span>}
                         <span className="text-gray-600 text-sm">${price}</span>
                     </div>
                 </div>
                 <div className="flex justify-between text-sm">
-                    <span>Quantity: 1</span>
-                    <span className="font-medium">Subtotal: ${price}</span>
+                    <span>Quantity: {quantity}</span>
+                    <span className="font-medium">Subtotal: ${subtotal}</span>
                 </div>
             </div>
 
             {/* Remove button */}
             <button
                 className="px-3 sm:px-4 py-1 sm:py-2 border-2 border-black rounded-xl hover:bg-black hover:text-white transition"
-                onClick={() => removeProduct(productId)}
+                onClick={() => removeProduct(cartId)}
             >
                 Remove
             </button>
