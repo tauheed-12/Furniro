@@ -129,16 +129,12 @@ export const addUserAddress = async (req, res) => {
 
 export const addProduct = async (req, res) => {
     try {
-        const {
-            productName,
-            description,
-            price,
-            discount,
-            colors = [],
-            sizes = [],
-        } = req.body;
+        let { productName, description, price, discount, colors, sizes, features } = req.body;
 
-        // Handle S3 image upload
+        colors = colors ? JSON.parse(colors) : [];
+        sizes = sizes ? JSON.parse(sizes) : [];
+        features = features ? JSON.parse(features) : [];
+
         let imageUrl = null;
         if (req.file) {
             const params = {
@@ -151,39 +147,39 @@ export const addProduct = async (req, res) => {
             imageUrl = uploadResult.Location;
         }
 
-        // Insert product
         const [productResult] = await pool.query(
             `INSERT INTO Products (productName, description, price, discount, imageUrl) 
-       VALUES (?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?)`,
             [productName, description, price, discount || 0, imageUrl]
         );
 
         const productId = productResult.insertId;
 
-        // Insert colors
-        let colorIdsMap = {}; // to map color_name => color_id
-        if (colors.length > 0) {
-            for (let i = 0; i < colors.length; i++) {
-                const [colorResult] = await pool.query(
-                    `INSERT INTO Product_colors (product_id, color_name) VALUES (?, ?)`,
-                    [productId, colors[i].colorName]
+        let colorIdsMap = {};
+        for (const c of colors) {
+            const [colorResult] = await pool.query(
+                `INSERT INTO Product_colors (product_id, color_name) VALUES (?, ?)`,
+                [productId, c.colorName]
+            );
+            colorIdsMap[c.colorName] = colorResult.insertId;
+        }
+
+        for (const s of sizes) {
+            const { colorName, sizeName, quantity } = s;
+            const colorId = colorIdsMap[colorName];
+            if (colorId) {
+                await pool.query(
+                    `INSERT INTO Product_sizes (color_id, size, quantity) VALUES (?, ?, ?)`,
+                    [colorId, sizeName, quantity || 0]
                 );
-                colorIdsMap[colors[i].colorName] = colorResult.insertId;
             }
         }
 
-        // Insert sizes
-        if (sizes.length > 0) {
-            for (let i = 0; i < sizes.length; i++) {
-                const { colorName, sizeName, quantity } = sizes[i];
-                const colorId = colorIdsMap[colorName];
-                if (colorId) {
-                    await pool.query(
-                        `INSERT INTO Product_sizes (color_id, size, quantity) VALUES (?, ?, ?)`,
-                        [colorId, sizeName, quantity || 0]
-                    );
-                }
-            }
+        for (const feature of features) {
+            await pool.query(
+                `INSERT INTO ProductFeatures (productId, featureDescription) VALUES (?, ?)`,
+                [productId, feature]
+            );
         }
 
         res.status(201).json({

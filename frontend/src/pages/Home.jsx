@@ -10,7 +10,7 @@ import ExploreMore from '../components/ExploreMore';
 import FetchError from './FetchErrorTempl';
 
 const Home = () => {
-    const [numbOfDisplayedProduct, setNumberOfDisplayedProduct] = useState(10);
+    const [numbOfDisplayedProduct, setNumberOfDisplayedProduct] = useState(12);
     const [isHideButton, setHideButton] = useState(false);
     const [imgIndex, setImgIndex] = useState(0);
     const [products, setProducts] = useState([]);

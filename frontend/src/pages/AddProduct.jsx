@@ -77,38 +77,27 @@ const AddProduct = () => {
             setLoading(true);
             const formData = new FormData();
 
-            formData.append("productName", productDetails.productName);
-            formData.append("description", productDetails.description);
-            formData.append("price", productDetails.price);
-            formData.append("discount", productDetails.discount);
+            const { productName, description, price, discount, color, sizes, features, image } = productDetails;
 
-            productDetails.color.forEach((color, index) => {
-                formData.append(`color[${index}][colorName]`, color.colorName);
-                formData.append(`color[${index}][quantity]`, color.quantity);
-            });
+            formData.append("productName", productName);
+            formData.append("description", description);
+            formData.append("price", price);
+            formData.append("discount", discount);
 
-            productDetails.sizes.forEach((size, index) => {
-                formData.append(`sizes[${index}][sizeName]`, size.sizeName);
-                formData.append(`sizes[${index}][quantity]`, size.quantity);
-            });
+            formData.append("colors", JSON.stringify(color));
+            formData.append("sizes", JSON.stringify(sizes));
+            formData.append("features", JSON.stringify(features));
 
-            productDetails.features.forEach((feature, index) => {
-                formData.append(`features[${index}]`, feature);
-            });
-
-            if (productDetails.image) {
-                formData.append("image", productDetails.image);
+            if (image instanceof File) {
+                formData.append("image", image);
             }
 
-            const tokenCookie = document.cookie
-                .split(";")
-                .find((cookie) => cookie.trim().startsWith("token="));
+            const tokenCookie = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("token="));
             if (!tokenCookie) return;
-
             const token = tokenCookie.split("=")[1];
 
             const response = await axios.post(
-                `http://localhost:8080/user/add`,
+                "http://localhost:8080/user/add",
                 formData,
                 {
                     headers: {
@@ -117,14 +106,16 @@ const AddProduct = () => {
                     },
                 }
             );
+
             alert(response.data.message);
-            setProductDetails(demoProduct); // reset form after success
+            setProductDetails(demoProduct);
         } catch (error) {
             console.error("Error adding product:", error);
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div>
