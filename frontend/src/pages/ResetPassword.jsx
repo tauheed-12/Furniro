@@ -24,7 +24,7 @@ const ResetPasswordPage = () => {
 
         try {
             setLoading(true);
-            const response = await axios.post("http://localhost:8080/auth/reset-password", {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/auth/reset-password`, {
                 token,
                 newPassword,
             });

@@ -16,7 +16,7 @@ const OrdersPage = () => {
       try {
         setLoading(true);
         const response = await axios.post(
-          `http://localhost:8080/user/findOrders`,
+          `${process.env.REACT_APP_BACKEND_URI}/user/findOrders`,
           { userId },
           {
             headers: {
@@ -75,10 +75,10 @@ const OrdersPage = () => {
                   </div>
                   <span
                     className={`mt-2 md:mt-0 px-3 py-1 text-sm rounded-full font-medium ${order.order_status === "paid"
-                        ? "bg-green-100 text-green-700"
-                        : order.order_status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
+                      ? "bg-green-100 text-green-700"
+                      : order.order_status === "pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
                       }`}
                   >
                     {order.order_status}
@@ -131,8 +131,8 @@ const OrdersPage = () => {
                         Status:{" "}
                         <span
                           className={`font-medium ${order.transaction.transaction_status === "completed"
-                              ? "text-green-600"
-                              : "text-red-600"
+                            ? "text-green-600"
+                            : "text-red-600"
                             }`}
                         >
                           {order.transaction.transaction_status}

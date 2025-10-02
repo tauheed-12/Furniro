@@ -6,7 +6,7 @@ export const registerUser = createAsyncThunk(
     'register/registerUser',
     async (formData, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`http://localhost:8080/auth/register`, formData);
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/auth/register`, formData);
             return response.data;
         } catch (err) {
             const errorMsg = err.response?.data?.message || err.message || 'Something went wrong';
@@ -20,7 +20,7 @@ export const verifyEmail = createAsyncThunk(
     'register/verifyEmail',
     async (token, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`http://localhost:8080/auth/verifyEmail`, { token });
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/auth/verifyEmail`, { token });
             return response.data;
         } catch (err) {
             const errorMsg = err.response?.data?.message || err.message || 'Verification failed';

@@ -25,7 +25,7 @@ const PaymentForm = () => {
 
         if (!error) {
             const { id } = paymentMethod;
-            const response = await fetch(`{process.env.BACKEND_URI}/product/create-payment-intent`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URI}/product/create-payment-intent`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -9,18 +9,20 @@ import ProductsHome from '../components/ProductsHome';
 import ExploreMore from '../components/ExploreMore';
 import FetchError from './FetchErrorTempl';
 
+
 const Home = () => {
-    const [numbOfDisplayedProduct, setNumberOfDisplayedProduct] = useState(12);
+    const [numbOfDisplayedProduct, setNumberOfDisplayedProduct] = useState(8);
     const [isHideButton, setHideButton] = useState(false);
     const [imgIndex, setImgIndex] = useState(0);
     const [products, setProducts] = useState([]);
     const [error, setError] = useState(null);   // <-- error state
     const imgs = [range1, range2, range3];
-
+    const BACKEND_URI = process.env.REACT_APP_BACKEND_URI;
+    console.log(BACKEND_URI)
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.post(`http://localhost:8080/product/getproduct`, 16);
+                const response = await axios.post(`${BACKEND_URI}/product/getproduct`, 16);
                 setProducts(response.data);
             } catch (error) {
                 setError("Unable to fetch products. Please try again later!");

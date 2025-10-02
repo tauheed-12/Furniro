@@ -25,7 +25,7 @@ const SingleProduct = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.post('http://localhost:8080/product/singleproduct', { productId });
+                const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/singleproduct`, { productId });
                 setSelectedProduct(response.data);
 
                 // Auto-select first color & first size

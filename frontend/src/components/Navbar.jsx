@@ -30,7 +30,7 @@ const Navbar = () => {
             </div>
             <FiAlignJustify className='lg:hidden cursor-pointer text-2xl' onClick={() => setNavbarOpen(true)} />
             <div className='flex-1 hidden lg:flex justify-between items-center'>
-                {['Home', 'Shop', 'Contact', 'Add'].map((link, index) => (
+                {['Home', 'Shop', 'Contact'].map((link, index) => (
                     <NavLink
                         key={index}
                         to={`${link === 'Home' ? '/' : '/' + link.toLowerCase()}`}

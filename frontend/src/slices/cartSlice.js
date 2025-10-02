@@ -12,7 +12,7 @@ const getCookie = (name) => {
 export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) => {
     try {
         const userId = getCookie("userId");
-        const response = await axios.post('http://localhost:8080/product/cartProduct', { userId }, {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/cartProduct`, { userId }, {
             headers: { Authorization: `Bearer ${getCookie('token')}` }
         });
         return response.data; // array of cart items
@@ -34,7 +34,7 @@ export const addToCart = createAsyncThunk('cart/addToCart', async (item, thunkAP
 
 export const deleteFromCart = createAsyncThunk('cart/deleteFromCart', async (cartId, thunkAPI) => {
     try {
-        await axios.post('http://localhost:8080/product/removeCart', { cartId }, {
+        await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/removeCart`, { cartId }, {
             headers: { Authorization: `Bearer ${getCookie('token')}` }
         });
         return cartId;
@@ -47,7 +47,7 @@ export const deleteFromCart = createAsyncThunk('cart/deleteFromCart', async (car
 export const clearCart = createAsyncThunk('cart/clearCart', async (_, thunkAPI) => {
     try {
         const userId = getCookie("userId");
-        await axios.post('http://localhost:8080/product/clearCart', { userId }, {
+        await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/clearCart`, { userId }, {
             headers: { Authorization: `Bearer ${getCookie('token')}` }
         });
         return [];

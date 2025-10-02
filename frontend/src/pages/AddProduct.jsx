@@ -97,7 +97,7 @@ const AddProduct = () => {
             const token = tokenCookie.split("=")[1];
 
             const response = await axios.post(
-                "http://localhost:8080/user/add",
+                `${process.env.REACT_APP_BACKEND_URI}/user/add`,
                 formData,
                 {
                     headers: {

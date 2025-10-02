@@ -11,7 +11,7 @@ const Shop = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.post(`http://localhost:8080/product/getproduct`, 16);
+                const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/getproduct`, 16);
                 setProducts(response.data);
             } catch (error) {
             }

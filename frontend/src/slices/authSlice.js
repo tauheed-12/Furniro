@@ -23,7 +23,7 @@ export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (credentials, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:8080/auth/login', credentials);
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/auth/login`, credentials);
             return response.data;
         } catch (err) {
             const message = err.response?.data?.message || err.message || 'Something went wrong';

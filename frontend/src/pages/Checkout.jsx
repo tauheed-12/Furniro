@@ -51,7 +51,7 @@ const Checkout = () => {
     useEffect(() => {
         const fetchAddresses = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:8080/user/address/${userId}`, {
+                const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URI}/user/address/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setAddresses(data);
@@ -82,7 +82,7 @@ const Checkout = () => {
     const saveNewAddress = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await axios.post(`http://localhost:8080/user/address/${userId}`, newAddress, {
+            const { data } = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/user/address/${userId}`, newAddress, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setAddresses([...addresses, data]);
@@ -113,7 +113,7 @@ const Checkout = () => {
             if (payMethod === 'bankTransfer') {
                 navigate('/stripe/checkout');
             } else {
-                await axios.post(`http://localhost:8080/product/checkout`, {
+                await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/checkout`, {
                     userId,
                     productIds,
                     addressId: selectedAddressId,
