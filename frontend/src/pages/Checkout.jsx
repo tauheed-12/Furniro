@@ -176,9 +176,9 @@ const Checkout = () => {
                                 <label className="block mb-2">
                                     <input type="radio" name="payment" value="cod" onChange={handlePaymentMethodChange} /> Cash on Delivery
                                 </label>
-                                <label>
+                                {/* <label>
                                     <input type="radio" name="payment" value="bankTransfer" onChange={handlePaymentMethodChange} /> Bank Transfer
-                                </label>
+                                </label> */}
                             </div>
 
                             <button

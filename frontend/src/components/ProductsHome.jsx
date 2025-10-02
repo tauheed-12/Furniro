@@ -7,7 +7,7 @@ const ProductsHome = ({ products, numbOfDisplayedProduct, isHideButton, setNumbe
                 <ProductCard
                     productId={product.id}
                     imgName={product.imageUrl}
-                    productName={product.name}
+                    productName={product.productName}
                     description={product.description}
                     price={product.price}
                     percentageOff={10}
