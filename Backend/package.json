@@ -2,6 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
@@ -27,6 +28,7 @@
     "nodemon": "^3.1.4",
     "resend": "^3.5.0",
     "stripe": "^16.11.0",
-    "uniqid": "^5.4.0"
+    "uniqid": "^5.4.0",
+    "uuid": "^13.0.0"
   }
 }
