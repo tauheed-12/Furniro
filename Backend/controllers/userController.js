@@ -62,7 +62,6 @@ export const findOrders = async (req, res) => {
 export const getUserAddresses = async (req, res) => {
     try {
         const { userId } = req.params;
-        console.log(userId);
         const [rows] = await pool.query(
             'SELECT * FROM Addresses WHERE user_id = ?',
             [userId]

@@ -39,7 +39,7 @@ const PaymentForm = () => {
             if (data.error) {
                 setMessage(`Payment failed: ${data.error.message}`);
             } else {
-                await axios.post('http://localhost:8080/product/checkout', {
+                await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/checkout`, {
                     billingDetails,
                     userId,
                     payMethod

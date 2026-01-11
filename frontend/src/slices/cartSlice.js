@@ -6,7 +6,6 @@ const getCookie = (name) => {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;
 };
-
 // --- Async Thunks ---
 
 export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) => {
@@ -23,7 +22,7 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) 
 
 export const addToCart = createAsyncThunk('cart/addToCart', async (item, thunkAPI) => {
     try {
-        const response = await axios.post('http://localhost:8080/product/addCart', { userId: getCookie("userId"), ...item }, {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URI}/product/addCart`, { userId: getCookie("userId"), ...item }, {
             headers: { Authorization: `Bearer ${getCookie('token')}` }
         });
         return response.data; // backend returns message, so we may need to refetch cart

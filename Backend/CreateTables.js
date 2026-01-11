@@ -1,8 +1,8 @@
 import { pool } from "./config/dbConfig.js";
 
 const createDatabaseAndTables = async () => {
-    try {
-        await pool.query(`
+  try {
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS Users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -18,7 +18,7 @@ const createDatabaseAndTables = async () => {
       );
     `);
 
-        await pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS Products (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
@@ -30,7 +30,7 @@ const createDatabaseAndTables = async () => {
       );
     `);
 
-        await pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS Orders (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         userId BIGINT NOT NULL,
@@ -41,7 +41,7 @@ const createDatabaseAndTables = async () => {
       );
     `);
 
-        await pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS OrderItems (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         orderId BIGINT NOT NULL,
@@ -60,7 +60,7 @@ const createDatabaseAndTables = async () => {
       );
     `);
 
-        await pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS BillingDetails (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         orderId BIGINT NOT NULL,
@@ -80,12 +80,11 @@ const createDatabaseAndTables = async () => {
       );
     `);
 
-        console.log("All tables created successfully!");
-        process.exit(0);
-    } catch (err) {
-        console.error("Error creating database/tables:", err);
-        process.exit(1);
-    }
+    process.exit(0);
+  } catch (err) {
+    console.error("Error creating database/tables:", err);
+    process.exit(1);
+  }
 };
 
 createDatabaseAndTables();

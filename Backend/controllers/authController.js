@@ -85,7 +85,6 @@ export const verifyEmail = async (req, res) => {
             'SELECT * FROM Users WHERE verify_token = ? AND verify_token_expiry > ?',
             [token, Date.now()]
         );
-        console.log(rows);
         if (rows.length === 0) {
             return res.status(400).json({ error: "Invalid or expired token" });
         }

@@ -18,7 +18,6 @@ const Home = () => {
     const [error, setError] = useState(null);   // <-- error state
     const imgs = [range1, range2, range3];
     const BACKEND_URI = process.env.REACT_APP_BACKEND_URI;
-    console.log(BACKEND_URI)
     useEffect(() => {
         const fetchProducts = async () => {
             try {

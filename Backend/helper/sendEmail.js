@@ -47,13 +47,13 @@ const sendEmail = async (mail, mailType, userId) => {
           <p>Hi there,</p>
           <p>Thank you for signing up with <strong>Furniro</strong>. Please verify your email by clicking below:</p>
           <div style="text-align:center; margin:30px 0;">
-            <a href="http://localhost:3000/verifyemail/${token}" 
+            <a href="${process.env.FRONTEND_URI}/verifyemail/${token}" 
                style="background:#4CAF50; color:#fff; padding:12px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">
                ✅ Verify My Email
             </a>
           </div>
           <p>If the button doesn’t work, use this link:</p>
-          <p style="color:#555;">http://localhost:3000/verifyemail/${token}</p>
+          <p style="color:#555;">${process.env.FRONTEND_URI}/verifyemail/${token}</p>
           <hr>
           <p style="font-size:12px; color:#888;">This link will expire in 1 hour.</p>
         </div>
@@ -70,13 +70,13 @@ const sendEmail = async (mail, mailType, userId) => {
           <p>Hi there,</p>
           <p>Click below to reset your password:</p>
           <div style="text-align:center; margin:30px 0;">
-            <a href="http://localhost:3000/forgotpassword/${token}" 
+            <a href="${process.env.FRONTEND_URI}/forgotpassword/${token}" 
                style="background:#E67E22; color:#fff; padding:12px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">
                🔄 Reset Password
             </a>
           </div>
           <p>If the button doesn’t work, copy this link:</p>
-          <p style="color:#555;">http://localhost:3000/forgotpassword/${token}</p>
+          <p style="color:#555;">${process.env.FRONTEND_URI}/forgotpassword/${token}</p>
           <hr>
           <p style="font-size:12px; color:#888;">This link will expire in 1 hour.</p>
         </div>
