@@ -4,12 +4,14 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ShoppingCart from '../components/ShoppingCart';
+import ScrollToTop from '../scrollTop';
 
 const RootPage = () => {
     const [cartModelOpen, setCartModelOpen] = useState(false);
 
     return (
         <div className={`relative ${cartModelOpen ? 'overflow-hidden' : ''}`}>
+            <ScrollToTop />
             <Navbar setCartModelOpen={setCartModelOpen} />
             {cartModelOpen && (
                 <>
