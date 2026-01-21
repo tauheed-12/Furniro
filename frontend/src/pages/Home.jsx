@@ -28,7 +28,7 @@ const Home = () => {
             }
         };
         fetchProducts();
-    }, []);
+    }, [BACKEND_URI]);
 
     const setNumberOfProduct = () => {
         if (numbOfDisplayedProduct > productData.length) {

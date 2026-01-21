@@ -153,7 +153,7 @@ const Checkout = () => {
                                             type="radio"
                                             name="address"
                                             value={addr.id}
-                                            checked={selectedAddressId == addr.id}
+                                            checked={selectedAddressId === addr.id}
                                             onChange={handleAddressChange}
                                             className="mr-3"
                                         />
