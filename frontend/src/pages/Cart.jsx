@@ -17,10 +17,13 @@ import { deleteFromCart, fetchCart } from '../slices/cartSlice';
 const Cart = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { items, status, error } = useSelector((state) => state.cart);
+    const { items, fetchStatus, error } = useSelector((state) => state.cart);
 
     useEffect(() => {
-        dispatch(fetchCart());
+        const fetchUserCart = async () => {
+            dispatch(fetchCart());
+        }
+        fetchUserCart();
     }, [dispatch]);
 
     const handleCheckout = () => {
@@ -38,7 +41,7 @@ const Cart = () => {
         navigate('/checkout');
     };
 
-    const removeProduct = (productId) => {
+    const removeProduct = async (productId) => {
         dispatch(deleteFromCart(productId));
         // Fetch cart again after deletion
         dispatch(fetchCart());
@@ -52,13 +55,13 @@ const Cart = () => {
             <Hero title="Cart" />
 
             {/* Loading and Error States */}
-            {status === 'loading' && (
+            {fetchStatus === 'loading' && (
                 <div className="flex justify-center items-center h-[70vh]">
                     <Spinner />
                 </div>
             )}
 
-            {status === 'failed' && (
+            {fetchStatus === 'failed' && (
                 <div className="flex flex-col items-center justify-center text-center py-20 px-4">
                     <FaExclamationTriangle className="text-5xl text-red-500 mb-4" />
                     <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops! Something went wrong.</h2>
@@ -73,7 +76,7 @@ const Cart = () => {
             )}
 
             {/* Cart Content */}
-            {status === 'succeeded' && (
+            {fetchStatus === 'succeeded' && (
                 <>
                     {items.length === 0 ? (
                         <h1 className="w-full text-center my-10">No products in cart</h1>
